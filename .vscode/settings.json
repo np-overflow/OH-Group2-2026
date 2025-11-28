@@ -1,0 +1,13 @@
+{
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-env.workspaceSearchPaths": ["./backend/*"],
+    "python-envs.pythonProjects": [
+        {
+            "path": "./backend",
+            "envType": "venv",
+            "venvPath": "./backend/.venv",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        }
+    ],
+}
