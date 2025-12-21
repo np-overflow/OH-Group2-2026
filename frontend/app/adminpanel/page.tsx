@@ -2,9 +2,11 @@
 
 import ContinueButton from "@/components/ContinueButton";
 import MenuButton from "@/components/MenuButton";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function HomePage() {
+  let router = useRouter();
   const [selected, setSelected] = useState(1);
   const [available, setAvailable] = useState(false);
 
@@ -37,7 +39,7 @@ export default function HomePage() {
           ></MenuButton>
         </div>
       </div>
-      <ContinueButton onClick={() => {}} title="Continue" isAvailable={true} />
+      <ContinueButton onClick={() => {selected === 1 ? router.push("/adminpanel/livephoto") : router.push("/adminpanel/upload")}} title="Continue" isAvailable={true} />
     </div>
   );
 }
