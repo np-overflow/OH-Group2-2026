@@ -21,7 +21,7 @@ const UploadPage = () => {
           ></img>
         </div>
       </div>
-      <ContinueButton title="Continue" /> /* incomplete logic, need to wait for back-end support */
+      <ContinueButton onClick={() => {}} title="Continue" isAvailable={false} /> /* incomplete logic, need to wait for back-end support */
       
     </div>
   );
