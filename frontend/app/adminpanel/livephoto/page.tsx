@@ -3,6 +3,7 @@ import ContinueButton from "@/components/ContinueButton";
 import React, { useEffect, useRef, useState } from "react";
 
 const LivePhotoPage = () => {
+  // Note: I need to check if the camera permission is enabled before I can display the 3.
   const camera = useRef<HTMLVideoElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   async function showCamera() {
