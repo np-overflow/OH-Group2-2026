@@ -1,8 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F9F9FF;
+  --background: #f9f9ff;
   --foreground: #171717;
+}
+
+@theme {
+  --animate-down: down 5s ease-in-out forwards;
+
+  @keyframes down {
+    0% {
+      transform: translateY(0px)
+    }
+    100% {
+      transform: translateY(480px)
+    }
+  }
 }
 
 @theme inline {
@@ -11,8 +24,6 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
-
-
 
 body {
   background: var(--background);

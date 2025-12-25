@@ -2,13 +2,31 @@
 
 import ContinueButton from "@/components/ContinueButton";
 import MenuButton from "@/components/MenuButton";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function HomePage() {
   let router = useRouter();
   const [selected, setSelected] = useState(1);
   const [available, setAvailable] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  useEffect(() => {
+    const newId = Math.random().toString(36).substring(3);
+    localStorage.setItem("sessionId", newId);
+    setSessionId(newId);
+  }, []);
+
+  function routeAndPass(option:number) {
+    if (option === 1) {
+      localStorage.setItem("option", "regular")
+      router.push("/adminpanel/livephoto")
+    }
+    else {
+      localStorage.setItem("option", "custom")
+      router.push("/adminpanel/upload");
+    }
+  }
 
   return (
     <div className=" p-8 h-screen relative flex items-center justify-center">
@@ -39,7 +57,15 @@ export default function HomePage() {
           ></MenuButton>
         </div>
       </div>
-      <ContinueButton onClick={() => {selected === 1 ? router.push("/adminpanel/livephoto") : router.push("/adminpanel/upload")}} title="Continue" isAvailable={true} />
+      <ContinueButton
+        onClick={() => {
+          selected === 1
+            ? routeAndPass(1)
+            : routeAndPass(2)
+        }}
+        title="Continue"
+        isAvailable={true}
+      />
     </div>
   );
 }

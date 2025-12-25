@@ -67,6 +67,7 @@ export default function Home() {
     }
   };
 
+  
   return (
     <div className="min-h-screen bg-zinc-50 px-4 py-10 font-sans text-zinc-900 dark:bg-black dark:text-zinc-100">
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-10 rounded-2xl bg-white p-8 shadow-lg dark:bg-zinc-900">
