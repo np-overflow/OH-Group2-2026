@@ -20,6 +20,7 @@ const LivePhotoPage = () => {
   const [editedPhotos, setEditedPhotos] = useState<Blob[]>([])
   const [sourceX, setSourceX] = useState(0)
   const [sourceY, setSourceY] = useState(0)
+  const [photoTaking, setPhotoTaking] = useState(false);
   // Note: I need to check if the camera permission is enabled before I can display the 3.
   const counter = useRef<HTMLParagraphElement>(null);
   const camera = useRef<HTMLVideoElement>(null);
@@ -94,6 +95,7 @@ const LivePhotoPage = () => {
               setTimeout(() => {
                 if (photoNum === 3) {
                   setAvailable(true);
+                  setPhotoTaking(false)
                   return;
                 }
                 counter.current!.textContent = "3";
@@ -197,6 +199,7 @@ const LivePhotoPage = () => {
   }
 
   async function capturePhotos() {
+    setPhotoTaking(true)
     setCapturedPhotos([])
     capturePhoto(1);
   }
@@ -245,7 +248,7 @@ const LivePhotoPage = () => {
 
             <button
               onClick={capturePhotos}
-              className="rounded-md text-white text-xl font-normal bg-[#2C7AFC] px-10 py-4 hover:cursor-pointer"
+              className={`rounded-md text-white text-xl font-normal bg-[#2C7AFC] px-10 py-4 hover:cursor-pointer ${photoTaking ? "pointer-events-none bg-[#9c9696]" : null}`}
             >
               Capture
             </button>

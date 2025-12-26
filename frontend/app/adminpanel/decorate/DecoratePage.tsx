@@ -70,7 +70,7 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
 
   const canvas = useRef<HTMLCanvasElement>(null);
   const [id, setId] = useState(0);
-  const [sessionId, setSessionId] = useState("")
+  const [sessionId, setSessionId] = useState("");
   const [stickerCount, setStickerCount] = useState<Record<number, StickerData>>(
     {}
   );
@@ -79,7 +79,7 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
   useEffect(() => {
     const drawBaseStrip = async () => {
       const currentSessionId = localStorage.getItem("sessionId");
-      setSessionId(currentSessionId!)
+      setSessionId(currentSessionId!);
       const option = localStorage.getItem("option");
       let background = new Image();
       background.crossOrigin = "anonymous";
@@ -98,7 +98,6 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
               // FORCE NEW REQUEST: Handle existing query params (?) vs new ones
               const separator = data.imageUrl.includes("?") ? "&" : "?";
               background.src = `${data.imageUrl}${separator}time=${Date.now()}`;
-              
             }
           }
         } catch (error) {
@@ -255,6 +254,7 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
   }
 
   async function renderPhotostrip() {
+    setDisplayPage("loading");
     // It needs to draw all the stickers on the photostrip to the canvas. We will try printing
     // the 2700px version
     Object.entries(stickerCount).map(([id, stickerData]) => {
@@ -281,7 +281,7 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
       }
     });
     let pngDataURL;
-    if (canvas.current && testLink.current) {
+    if (canvas.current) {
       pngDataURL = canvas.current.toBlob(async (blob) => {
         if (!blob) {
           console.error("Canvas to blob conversion failed.");
@@ -292,8 +292,8 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
         const snapshot = await uploadBytes(storageRef, blob);
         const downloadURL = await getDownloadURL(snapshot.ref);
         console.log("File available at", downloadURL);
-        testLink.current!.href = downloadURL;
         localStorage.setItem("download", downloadURL);
+
         router.push("/adminpanel/download");
         /*
   try {
@@ -321,11 +321,14 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
     }
   }
 
-  if (displayPage === "loading") {
-    return <LoadingPage />;
-  } else {
-    return (
-      <div className="p-8 h-screen relative">
+  return (
+    <div>
+      {displayPage === "loading" && <LoadingPage />}
+      <div
+        className={`p-8 h-screen ${
+          displayPage === "loading" && "absolute z-0 top-0"
+        }`}
+      >
         <h1 className="text-4xl text-center mb-12 font-bold">Decorate</h1>
         <div className="flex gap-30 justify-center items-center h-[600px]">
           <div ref={canvasOverlay} className="h-[540px] w-[180px] relative">
@@ -405,10 +408,9 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
           isAvailable={true}
           title="Continue"
         />
-        
       </div>
-    );
-  }
+    </div>
+  );
 };
 
 export default DecoratePage;
