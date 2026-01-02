@@ -11,15 +11,14 @@ const YInterval = 66;
 const imageY = 406;
 
 const LivePhotoPage = () => {
-  
-  const [option, setOption] = useState<string|null>("option")
-  const [sessionId, setSessionId] = useState<string|null>("sessionId")
+  const [option, setOption] = useState<string | null>("option");
+  const [sessionId, setSessionId] = useState<string | null>("sessionId");
   const [displayPage, setDisplayPage] = useState("livephoto");
   const [available, setAvailable] = useState(false);
   const [capturedPhotos, setCapturedPhotos] = useState<Blob[]>([]);
-  const [editedPhotos, setEditedPhotos] = useState<Blob[]>([])
-  const [sourceX, setSourceX] = useState(0)
-  const [sourceY, setSourceY] = useState(0)
+  const [editedPhotos, setEditedPhotos] = useState<Blob[]>([]);
+  const [sourceX, setSourceX] = useState(0);
+  const [sourceY, setSourceY] = useState(0);
   const [photoTaking, setPhotoTaking] = useState(false);
   // Note: I need to check if the camera permission is enabled before I can display the 3.
   const counter = useRef<HTMLParagraphElement>(null);
@@ -37,7 +36,6 @@ const LivePhotoPage = () => {
 
   async function sendAndRetrieveSingularImage(imageBlob: any) {
     const formData = new FormData();
-    
 
     formData.append("file", imageBlob);
     try {
@@ -51,22 +49,26 @@ const LivePhotoPage = () => {
         throw new Error(message || "Failed to remove background.");
       }
       const blob = await response.blob();
-      
-      setEditedPhotos((prev) => [...prev, blob]);
+      return blob;
+     
     } catch (err) {
       console.error(err);
     }
   }
 
   async function sendAndRetrieveImages() {
-    setDisplayPage("loading")
-    console.log("hi")
+    setDisplayPage("loading");
+    console.log("hi");
     // route first to loading page
     // Send to bg api, retrieve, paint on new canvas. repeat.
-    await Promise.all 
-    (capturedPhotos.map((photo) => sendAndRetrieveSingularImage(photo)))
+    const results = await Promise.all(
+      capturedPhotos.map((photo) => sendAndRetrieveSingularImage(photo))
+    );
 
-    setDisplayPage("decorate")
+    const successfulPhotos = results.filter((blob) => blob !==null) as Blob[];
+    setEditedPhotos(successfulPhotos)
+
+    setDisplayPage("decorate");
   }
 
   function capturePhoto(photoNum: number) {
@@ -87,15 +89,15 @@ const LivePhotoPage = () => {
             copyCtx!.drawImage(camera.current!, 0, 0);
             canvasCopy.current!.toBlob((blob) => {
               if (!blob) return;
-
               setCapturedPhotos((prev) => [...prev, blob]);
+
               const objectURL = URL.createObjectURL(blob);
               drawToStrip(objectURL, canvas.current!, photoNum);
 
               setTimeout(() => {
                 if (photoNum === 3) {
                   setAvailable(true);
-                  setPhotoTaking(false)
+                  setPhotoTaking(false);
                   return;
                 }
                 counter.current!.textContent = "3";
@@ -199,14 +201,15 @@ const LivePhotoPage = () => {
   }
 
   async function capturePhotos() {
-    setPhotoTaking(true)
-    setCapturedPhotos([])
+    setCapturedPhotos([]);
+    setPhotoTaking(true);
+
     capturePhoto(1);
   }
 
   useEffect(() => {
-    setSessionId(localStorage.getItem("sessionId"))
-    setOption(localStorage.getItem("option"))
+    setSessionId(localStorage.getItem("sessionId"));
+    setOption(localStorage.getItem("option"));
     const image = new Image();
     image.src = "/images/blank-photostrip.png";
 
@@ -240,7 +243,7 @@ const LivePhotoPage = () => {
               ></video>
               <p
                 ref={counter}
-                className="absolute inset-0 flex items-center justify-center text-[#ffffff4d] text-[10rem] pointer-events-none"
+                className="absolute inset-0 flex items-center justify-center text-[#ffffff81] text-[10rem] pointer-events-none"
               >
                 3
               </p>
@@ -248,7 +251,9 @@ const LivePhotoPage = () => {
 
             <button
               onClick={capturePhotos}
-              className={`rounded-md text-white text-xl font-normal bg-[#2C7AFC] px-10 py-4 hover:cursor-pointer ${photoTaking ? "pointer-events-none bg-[#9c9696]" : null}`}
+              className={`rounded-2xl text-white text-xl font-normal bg-[#2C7AFC] px-6 py-2 hover:cursor-pointer ${
+                photoTaking ? "pointer-events-none bg-[#9c9696]" : null
+              }`}
             >
               Capture
             </button>
@@ -273,7 +278,15 @@ const LivePhotoPage = () => {
   } else if (displayPage === "loading") {
     return <LoadingPage />;
   } else {
-    return editedPhotos!.length == 3 ? (<DecoratePage imageBlobs={editedPhotos} sourceX={sourceX} sourceY={sourceY}/>) : (<LoadingPage/>)
+    return editedPhotos!.length == 3 ? (
+      <DecoratePage
+        imageBlobs={editedPhotos}
+        sourceX={sourceX}
+        sourceY={sourceY}
+      />
+    ) : (
+      <LoadingPage />
+    );
   }
 };
 

@@ -42,17 +42,17 @@ const DownloadPage = () => {
         <div className="relative flex flex-col items-center">
           <img
             src="/images/newtopphotoslot.png"
-            className="w-[250px] relative z-2 top-0"
+            className="w-[300px] relative z-2 top-0"
           ></img>
           <img
             src="/images/newbottomphotoslot.png"
-            className="w-[250px] relative z-0 "
+            className="w-[300px] relative z-0 "
           />
           <img
             onLoad={() => setImageLoad(true)}
             ref={photostrip}
             src={downloadUrl!}
-            className={`w-[160px] relative bottom-126 z-1 ${imageLoad ? "animate-down" : "null"}`}
+            className={`w-[180px] relative bottom-142 z-1 ${imageLoad ? "animate-down" : "null"}`}
           />
         </div>
       </div>
