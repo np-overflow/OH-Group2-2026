@@ -237,7 +237,7 @@ const LivePhotoPage = () => {
       <video
         autoPlay
         ref={camera}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 h-full object-cover aspect-7/5 left-1/2 -translate-x-1/2"
       />
 
       {/* absolute top-1/2 -translate-y-1/2 right-52 */}
