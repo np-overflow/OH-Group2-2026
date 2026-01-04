@@ -1,5 +1,6 @@
 "use client";
 import ContinueButton from "@/components/ContinueButton";
+import BackContinueButtonContainer from "@/components/new/back-continue-button-container";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import QRCode from "react-qr-code";
@@ -24,14 +25,18 @@ const DownloadPage = () => {
   }, []);
 
   return (
+    <BackContinueButtonContainer onContinue={() => {
+      router.replace("/adminpanel");
+    }} restart={true} continueText="Restart">
     <div className="h-screen relative bg-[#f9f9ff] z-3">
       <h1 className="p-8 text-center font-bold text-4xl bg-[#f9f9ff] z-3 relative">
         Download
       </h1>
-      <div className="h-[50px] w-full absolute right-0 bg-[#f9f9ff] z-3"></div>
+      {/* <div className="h-[50px] w-full absolute right-0 bg-[#f9f9ff] z-3"></div> */}
       <div className="mb-[50px]"></div>
-      <div className="flex items-start justify-center gap-60 bg-[#f9f9ff]">
-        <div className="w-min">
+
+      <div className="flex items-center justify-center gap-60 bg-[#f9f9ff]">
+        <div className="w-min flex flex-col items-center">
           <div className="p-4 border-2 rounded mt-8">
             <QRCode size={350} value={downloadUrl ? downloadUrl : "#"} />
           </div>
@@ -56,14 +61,8 @@ const DownloadPage = () => {
           />
         </div>
       </div>
-      <ContinueButton
-        onClick={() => {
-          router.push("/adminpanel");
-        }}
-        title="Back"
-        isAvailable={true}
-      />
     </div>
+    </BackContinueButtonContainer>
   );
 };
 
