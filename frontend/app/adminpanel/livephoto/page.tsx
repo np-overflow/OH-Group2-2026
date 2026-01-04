@@ -58,8 +58,6 @@ const LivePhotoPage = () => {
   }
 
   async function sendAndRetrieveImages() {
-    router.push("/adminpanel/loading");
-
     const results = await Promise.all(
       capturedPhotos.map((photo) => sendAndRetrieveSingularImage(photo))
     );
