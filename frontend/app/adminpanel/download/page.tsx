@@ -12,11 +12,21 @@ const DownloadPage = () => {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>("");
   const [imageLoad, setImageLoad] = useState(false);
+  const [qrUrl, setQrUrl] = useState<string>("");
   const photostrip = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     setSessionId(localStorage.getItem("sessionId"));
-    setDownloadUrl(localStorage.getItem("download"));
+    const url = localStorage.getItem("download");
+    setDownloadUrl(url);
+    
+    // Encode the URL to base64 and create QR code URL
+    if (url) {
+      const encoded = btoa(url);
+      const fullUrl = `${window.location.origin}/user/getimage?image=${encoded}`;
+      setQrUrl(fullUrl);
+    }
+    
     if (photostrip.current) {
     }
     photostrip.current!.onload = () => {
@@ -33,12 +43,12 @@ const DownloadPage = () => {
         Download
       </h1>
       {/* <div className="h-[50px] w-full absolute right-0 bg-[#f9f9ff] z-3"></div> */}
-      <div className="mb-[50px]"></div>
+      {/* <div className="mb-[10px]"></div> */}
 
       <div className="flex items-center justify-center gap-60 bg-[#f9f9ff]">
         <div className="w-min flex flex-col items-center">
           <div className="p-4 border-2 rounded mt-8">
-            <QRCode size={350} value={downloadUrl ? downloadUrl : "#"} />
+            <QRCode size={350} value={qrUrl || "#"} />
           </div>
           <p className="px-10 py-4 text-center">
             Scan the QR Code while we print the photos out for you!!
