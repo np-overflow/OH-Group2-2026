@@ -233,7 +233,7 @@ const LivePhotoPage = () => {
   }, []);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden">
+    <div className="relative w-screen h-screen overflow-hidden bg-black">
       <video
         autoPlay
         ref={camera}
@@ -275,7 +275,7 @@ const LivePhotoPage = () => {
         <BackContinueButtonContainer onBack={photoTaking ? undefined : () => router.push("/adminpanel/page")} onContinue={available ? () => {
           sendAndRetrieveImages();
         } : photoTaking ? undefined : capturePhotos} continueText={photoTaking ? "Taking Photos..." : available ? "Continue" : "Take Photos"}>
-          <div className="flex flex-col gap-20 justify-center items-center px-5" />
+          <div className="flex flex-col gap-20 justify-center items-center px-96" />
         </BackContinueButtonContainer>
 
         {/* <button
