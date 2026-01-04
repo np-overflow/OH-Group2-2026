@@ -267,22 +267,21 @@ const LivePhotoPage = () => {
           <p className="text-lg">Be sure to smile at the camera! 😁</p>
         </div>
 
-        <BackContinueButtonContainer onBack={() => router.push("/adminpanel/page")} onContinue={available ? () => {
+        <BackContinueButtonContainer onBack={photoTaking ? undefined : () => router.push("/adminpanel/page")} onContinue={available ? () => {
           sendAndRetrieveImages();
-        } : undefined}>
+        } : photoTaking ? undefined : capturePhotos} continueText={photoTaking ? "Taking Photos..." : available ? "Continue" : "Take Photos"}>
           <div className="flex flex-col gap-20 justify-center items-center px-5">
           </div>
         </BackContinueButtonContainer>
 
-        <button
+        {/* <button
           onClick={capturePhotos}
           className={`absolute bottom-10 rounded-2xl text-white text-xl font-normal bg-[#2C7AFC] px-6 py-2 hover:cursor-pointer ${photoTaking ? "pointer-events-none bg-[#9c9696]" : null
             }`}
         >
           Capture
-        </button>
+        </button> */}
       </div>
-
     </div>
   );
 };
