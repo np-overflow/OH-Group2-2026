@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Download } from "lucide-react";
+import Image from "next/image";
 
 export default function GetImagePage() {
   const searchParams = useSearchParams();
@@ -62,22 +63,26 @@ export default function GetImagePage() {
   }
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center bg-white gap-8 p-4">
-      <h1 className="text-2xl font-bold">Your Photostrip</h1>
+    <div className="w-screen h-screen flex flex-col items-center justify-center bg-white p-4 gap-4">
+      <h1 className="text-2xl font-bold shrink-0">Your Photostrip</h1>
       
-      <img
-        src={imageUrl}
-        alt="Photostrip"
-        className="max-w-full max-h-[70vh] object-contain"
-      />
-
       <button
         onClick={handleDownload}
-        className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+        className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors shrink-0"
       >
         <Download size={20} />
         Download Image
       </button>
+      <div className="flex-1 items-center justify-center min-h-0">
+        <Image
+          src={imageUrl}
+          alt="Photostrip"
+          width={300}
+          height={600}
+          className="max-w-full max-h-full object-contain"
+        />
+      </div>
+
     </div>
   );
 }
