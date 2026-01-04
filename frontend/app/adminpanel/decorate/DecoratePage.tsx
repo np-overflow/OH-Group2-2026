@@ -3,6 +3,7 @@
 import ContinueButton from "@/components/ContinueButton";
 import DraggableSticker from "@/components/DraggableSticker";
 import LoadingPage from "@/components/LoadingPage";
+import BackContinueButtonContainer from "@/components/new/back-continue-button-container";
 import StickerButton from "@/components/StickerButton";
 import { db, storage } from "@/lib/firebaseConfig";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
@@ -322,14 +323,12 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
   }
 
   return (
-    <div>
-      {displayPage === "loading" && <LoadingPage />}
+    <BackContinueButtonContainer onBack={() => {}} onContinue={() => {renderPhotostrip();}}>
+      {/* {displayPage === "loading" && <LoadingPage />} */}
       <div
-        className={`p-8 h-screen ${
-          displayPage === "loading" && "absolute z-0 top-0"
-        }`}
+        className={`p-8 pb-16 h-screen flex flex-col relative items-center justify-center`}
       >
-        <h1 className="text-4xl text-center mb-12 font-bold">Decorate</h1>
+        <h1 className="text-4xl text-center mb-12 font-bold">Decorate your photostrip!</h1>
         <div className="flex gap-30 justify-center items-center h-[600px]">
           <div ref={canvasOverlay} className="h-[540px] w-[180px] relative">
             <canvas
@@ -401,15 +400,8 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
             </div>
           </div>
         </div>
-        <ContinueButton
-          onClick={() => {
-            renderPhotostrip();
-          }}
-          isAvailable={true}
-          title="Continue"
-        />
       </div>
-    </div>
+    </BackContinueButtonContainer>
   );
 };
 
