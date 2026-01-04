@@ -242,16 +242,21 @@ const LivePhotoPage = () => {
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-    {/* absolute top-1/2 -translate-y-1/2 right-52 */}
-      <canvas
-        ref={canvas}
-        height="2700"
-        width="900"
-        className={`absolute m-auto inset-0 bg-black h-[540px] w-[180px] z-10 transition-opacity duration-500 ${
-          canvasVisible ? "opacity-100" : "opacity-0"
-        }`}
-      />
-      <canvas ref={canvasCopy} className="hidden"></canvas>
+      {/* absolute top-1/2 -translate-y-1/2 right-52 */}
+      
+      <div className={`absolute transition-all duration-500 ease-in-out text-white h-[540px] w-[180px] z-10 flex flex-col items-center gap-2 p-3 bg-black/20 rounded-lg ${photoTaking
+          ? "top-1/2 -translate-y-1/2 right-52"
+          : "m-auto inset-0"
+        } ${!(photoTaking || available) && "opacity-0"}`}>
+        <p className="text-lg font-bold text-center">Photostrip Preview</p>
+        <canvas
+          ref={canvas}
+          height="2700"
+          width="900"
+          className=" h-full w-full object-contain"
+        />
+        <canvas ref={canvasCopy} className="hidden"></canvas>
+      </div>
 
       <p
         ref={counter}
@@ -264,14 +269,15 @@ const LivePhotoPage = () => {
 
         <div className="bg-black/20 shadow-md text-white bg-opacity-70 rounded-xl px-10 py-4 flex flex-col justify-center items-center gap-2 absolute top-20">
           <h1 className="text-4xl font-bold text-center">Phototaking Time!</h1>
-          <p className="text-lg">Be sure to smile at the camera! 😁</p>
+          {!photoTaking && !available ? (
+            <p className="text-lg font-semibold text-center">Please start the phototaking by pressing the button.</p>
+          ) : <p className="text-lg">Be sure to smile at the camera! 😁</p>}
         </div>
 
         <BackContinueButtonContainer onBack={photoTaking ? undefined : () => router.push("/adminpanel/page")} onContinue={available ? () => {
           sendAndRetrieveImages();
         } : photoTaking ? undefined : capturePhotos} continueText={photoTaking ? "Taking Photos..." : available ? "Continue" : "Take Photos"}>
-          <div className="flex flex-col gap-20 justify-center items-center px-5">
-          </div>
+          <div className="flex flex-col gap-20 justify-center items-center px-5" />
         </BackContinueButtonContainer>
 
         {/* <button
