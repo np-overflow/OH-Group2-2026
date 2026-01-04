@@ -1,8 +1,9 @@
 "use client";
 import ContinueButton from "@/components/ContinueButton";
-import React, { FormEvent, useEffect, useRef, useState } from "react";
-import DecoratePage from "../decorate/DecoratePage";
-import LoadingPage from "@/components/LoadingPage";
+import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { usePhotoContext } from "@/lib/PhotoContext";
+import BackContinueButtonContainer from "@/components/new/back-continue-button-container";
 
 const imageWidth = 800;
 const imageHeight = 570;
@@ -11,15 +12,15 @@ const YInterval = 66;
 const imageY = 406;
 
 const LivePhotoPage = () => {
+  const router = useRouter();
+  const { setEditedPhotos, setSourceX, setSourceY } = usePhotoContext();
   const [option, setOption] = useState<string | null>("option");
   const [sessionId, setSessionId] = useState<string | null>("sessionId");
-  const [displayPage, setDisplayPage] = useState("livephoto");
   const [available, setAvailable] = useState(false);
   const [capturedPhotos, setCapturedPhotos] = useState<Blob[]>([]);
-  const [editedPhotos, setEditedPhotos] = useState<Blob[]>([]);
-  const [sourceX, setSourceX] = useState(0);
-  const [sourceY, setSourceY] = useState(0);
   const [photoTaking, setPhotoTaking] = useState(false);
+  const [canvasVisible, setCanvasVisible] = useState(true);
+
   // Note: I need to check if the camera permission is enabled before I can display the 3.
   const counter = useRef<HTMLParagraphElement>(null);
   const camera = useRef<HTMLVideoElement>(null);
@@ -50,25 +51,25 @@ const LivePhotoPage = () => {
       }
       const blob = await response.blob();
       return blob;
-     
+
     } catch (err) {
       console.error(err);
     }
   }
 
   async function sendAndRetrieveImages() {
-    setDisplayPage("loading");
-    console.log("hi");
-    // route first to loading page
-    // Send to bg api, retrieve, paint on new canvas. repeat.
+    router.push("/adminpanel/loading");
+
     const results = await Promise.all(
       capturedPhotos.map((photo) => sendAndRetrieveSingularImage(photo))
     );
 
-    const successfulPhotos = results.filter((blob) => blob !==null) as Blob[];
-    setEditedPhotos(successfulPhotos)
+    const successfulPhotos = results.filter((blob) => blob !== null) as Blob[];
+    setEditedPhotos(successfulPhotos);
+    setSourceX(canvas.current?.width || 0);
+    setSourceY(canvas.current?.height || 0);
 
-    setDisplayPage("decorate");
+    router.push("/adminpanel/decorate");
   }
 
   function capturePhoto(photoNum: number) {
@@ -76,10 +77,13 @@ const LivePhotoPage = () => {
     if (counter.current) {
       setTimeout(() => {
         counter.current!.textContent = "2";
+        setCanvasVisible(false);
         setTimeout(() => {
           counter.current!.textContent = "1";
+          setCanvasVisible(false);
           setTimeout(() => {
             counter.current!.textContent = "0";
+            setCanvasVisible(true);
             // Snap photo
             let copyCtx = canvasCopy.current!.getContext("2d");
             canvasCopy.current!.width = camera.current!.videoWidth;
@@ -101,6 +105,7 @@ const LivePhotoPage = () => {
                   return;
                 }
                 counter.current!.textContent = "3";
+                setCanvasVisible(false);
 
                 if (photoNum < 3) capturePhoto(photoNum + 1);
               }, 1000);
@@ -229,84 +234,57 @@ const LivePhotoPage = () => {
     showCamera();
   }, []);
 
-  if (displayPage === "livephoto") {
-    return (
-      <div className="p-10 flex flex-col justify-around gap-10">
-        <h1 className="text-4xl font-bold text-center">Phototaking</h1>
-        <div className="flex gap-60 justify-center">
-          <div className="flex flex-col gap-10 justify-between items-center">
-            <div className="relative">
-              <video
-                autoPlay
-                ref={camera}
-                className="object-cover aspect-7/5 w-[700px] bg-[url(/images/no-video.png)] bg-cover rounded border-black border-2 "
-              ></video>
-              <p
-                ref={counter}
-                className="absolute inset-0 flex items-center justify-center text-[#ffffff81] text-[10rem] pointer-events-none"
-              >
-                3
-              </p>
-            </div>
-
-            <button
-              onClick={capturePhotos}
-              className={`rounded-2xl text-white text-xl font-normal bg-[#2C7AFC] px-6 py-2 hover:cursor-pointer ${
-                photoTaking ? "pointer-events-none bg-[#9c9696]" : null
-              }`}
-            >
-              Capture
-            </button>
-          </div>
-          <canvas
-            ref={canvas}
-            height="2700"
-            width="900"
-            className="bg-black flex-none h-[540px] w-[180px]"
-          ></canvas>
-        </div>
-        <ContinueButton
-          onClick={() => {
-            sendAndRetrieveImages();
-          }}
-          title="Continue"
-          isAvailable={available}
-        />
-        <canvas ref={canvasCopy} className="hidden"></canvas>
-      </div>
-    );
-  } else if (displayPage === "loading") {
-    return <LoadingPage />;
-  } else {
-    return editedPhotos!.length == 3 ? (
-      <DecoratePage
-        imageBlobs={editedPhotos}
-        sourceX={sourceX}
-        sourceY={sourceY}
+  return (
+    <div className="relative w-screen h-screen overflow-hidden">
+      <video
+        autoPlay
+        ref={camera}
+        className="absolute inset-0 w-full h-full object-cover"
       />
-    ) : (
-      <LoadingPage />
-    );
-  }
+
+    {/* absolute top-1/2 -translate-y-1/2 right-52 */}
+      <canvas
+        ref={canvas}
+        height="2700"
+        width="900"
+        className={`absolute m-auto inset-0 bg-black h-[540px] w-[180px] z-10 transition-opacity duration-500 ${
+          canvasVisible ? "opacity-100" : "opacity-0"
+        }`}
+      />
+      <canvas ref={canvasCopy} className="hidden"></canvas>
+
+      <p
+        ref={counter}
+        className="absolute inset-0 flex items-center justify-center text-[#ffffff81] text-[10rem] z-0 pointer-events-none"
+      >
+        3
+      </p>
+
+      <div className="relative z-10 p-10 flex flex-col justify-center items-center h-screen">
+
+        <div className="bg-black/20 shadow-md text-white bg-opacity-70 rounded-xl px-10 py-4 flex flex-col justify-center items-center gap-2 absolute top-20">
+          <h1 className="text-4xl font-bold text-center">Phototaking Time!</h1>
+          <p className="text-lg">Be sure to smile at the camera! 😁</p>
+        </div>
+
+        <BackContinueButtonContainer onBack={() => router.push("/adminpanel/page")} onContinue={available ? () => {
+          sendAndRetrieveImages();
+        } : undefined}>
+          <div className="flex flex-col gap-20 justify-center items-center px-5">
+          </div>
+        </BackContinueButtonContainer>
+
+        <button
+          onClick={capturePhotos}
+          className={`absolute bottom-10 rounded-2xl text-white text-xl font-normal bg-[#2C7AFC] px-6 py-2 hover:cursor-pointer ${photoTaking ? "pointer-events-none bg-[#9c9696]" : null
+            }`}
+        >
+          Capture
+        </button>
+      </div>
+
+    </div>
+  );
 };
 
 export default LivePhotoPage;
-/* 
-console.log(blob)
-      let imageAfter = new Image()
-      imageAfter.src = URL.createObjectURL(blob)
-      await imageAfter.decode()
-      let ctx = canvas.current!.getContext("2d");
-      let {sx, sy, sw, sh} = getCoverCoordinates(imageAfter.width, imageAfter.height, 700, 500)
-      ctx?.drawImage(
-        imageAfter,
-        sx,
-        sy,
-        sw,
-        sh,
-        imageX,
-        imageY,
-        imageWidth,
-        imageHeight
-      );
-*/
