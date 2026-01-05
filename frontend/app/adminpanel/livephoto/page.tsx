@@ -69,6 +69,12 @@ const LivePhotoPage = () => {
     setSourceX(videoWidth);
     setSourceY(videoHeight);
 
+    (() => {
+      if (camera.current?.srcObject instanceof MediaStream) {
+        camera.current.srcObject.getTracks().forEach(track => track.stop());
+      }
+    })();
+
     router.push("/adminpanel/decorate");
   }
 
