@@ -20,6 +20,8 @@ const LivePhotoPage = () => {
   const [capturedPhotos, setCapturedPhotos] = useState<Blob[]>([]);
   const [photoTaking, setPhotoTaking] = useState(false);
   const [canvasVisible, setCanvasVisible] = useState(true);
+  const [videoWidth, setVideoWidth] = useState(0);
+  const [videoHeight, setVideoHeight] = useState(0);
 
   // Note: I need to check if the camera permission is enabled before I can display the 3.
   const counter = useRef<HTMLParagraphElement>(null);
@@ -64,8 +66,8 @@ const LivePhotoPage = () => {
 
     const successfulPhotos = results.filter((blob) => blob !== null) as Blob[];
     setEditedPhotos(successfulPhotos);
-    setSourceX(canvas.current?.width || 0);
-    setSourceY(canvas.current?.height || 0);
+    setSourceX(videoWidth);
+    setSourceY(videoHeight);
 
     router.push("/adminpanel/decorate");
   }
@@ -86,8 +88,8 @@ const LivePhotoPage = () => {
             let copyCtx = canvasCopy.current!.getContext("2d");
             canvasCopy.current!.width = camera.current!.videoWidth;
             canvasCopy.current!.height = camera.current!.videoHeight;
-            setSourceX(camera.current!.videoWidth);
-            setSourceY(camera.current!.videoHeight);
+            setVideoWidth(camera.current!.videoWidth);
+            setVideoHeight(camera.current!.videoHeight);
             copyCtx!.drawImage(camera.current!, 0, 0);
             canvasCopy.current!.toBlob((blob) => {
               if (!blob) return;
