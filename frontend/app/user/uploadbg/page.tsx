@@ -1,15 +1,14 @@
 "use client";
 import React, { useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { db, storage } from "@/lib/firebaseConfig";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { doc, setDoc } from "firebase/firestore";
 
 const UploadFilePage = () => {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session");
   const [bgUrl, setBgUrl] = useState<string | null>(null);
   const [status, setStatus] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: any) => {
@@ -17,6 +16,7 @@ const UploadFilePage = () => {
       const file = fileInput.current?.files![0];
       const objectURL = URL.createObjectURL(file);
       setBgUrl(objectURL);
+      setError(null);
     }
   };
 
@@ -25,31 +25,35 @@ const UploadFilePage = () => {
     if (!file) return;
 
     if (!sessionId) {
-      alert(
+      setError(
         "Error: No Session ID found. Please scan the QR Code again, buddy!"
       );
       return;
     }
 
     try {
-      //Create a reference to where the file will be saved
-      const storageRef = ref(storage, `custom-bg/${sessionId}/${file.name}`);
-      // Upload the file
-      const snapshot = await uploadBytes(storageRef, file);
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
 
-      //get the public URL
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log(downloadURL);
-      setBgUrl(downloadURL);
+      const response = await fetch(`/api/upload-background/${sessionId}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to upload background");
+      }
 
       setStatus(true);
-
-      //Update the database triggering admin panel upload page
-      await setDoc(doc(db, "custom-bg", sessionId), {
-        imageUrl: downloadURL,
-      });
+      setError(null);
     } catch (error) {
       console.error("Upload failed: " + error);
+      setError(error instanceof Error ? error.message : "Upload failed");
+      setStatus(false);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -80,14 +84,20 @@ const UploadFilePage = () => {
       <div className="flex justify-center mt-8">
         <button
           onClick={confirmFileChange}
-          className="p-4 bg-[#2C7AFC] rounded font-semibold text-white "
+          disabled={isUploading || !bgUrl}
+          className="p-4 bg-[#2C7AFC] rounded font-semibold text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          Confirm Background
+          {isUploading ? "Uploading..." : "Confirm Background"}
         </button>
       </div>
       {status ? (
-        <p className="text-center mt-4">
+        <p className="text-center mt-4 text-green-600 font-semibold">
           Your file has been received! <br></br> Check the photobooth screen{" "}
+        </p>
+      ) : null}
+      {error ? (
+        <p className="text-center mt-4 text-red-600 font-semibold">
+          {error}
         </p>
       ) : null}
     </div>

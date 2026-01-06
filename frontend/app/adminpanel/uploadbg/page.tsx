@@ -14,7 +14,6 @@ const UploadPage = () => {
   const [continueAvailable, setContinueAvailable] = useState(false);
   const [bgImage, setBgImage] = useState(null);
   const [sessionId, setSessionId] = useState<string | null>("");
-  const mobileUrl = `https://compote.slate.com/images/22ce4663-4205-4345-8489-bc914da1f272.jpeg?crop=1560%2C1040%2Cx0%2Cy0`;
 
   useEffect(() => {
     let newSessionId = localStorage.getItem("sessionId");
@@ -85,7 +84,7 @@ const UploadPage = () => {
             <div className="flex flex-col justify-center items-center overflow-hidden gap-4">
               <h3 className="text-xl">Scan to upload:</h3>
               <div className="border-2 border-black rounded-xl p-4">
-                {sessionId && <QRCode value={mobileUrl} size={300} />}
+                {sessionId && <QRCode value={`${window.location.origin}/user/uploadbg?session=${sessionId}`} size={300} />}
               </div>
             </div>
             <img

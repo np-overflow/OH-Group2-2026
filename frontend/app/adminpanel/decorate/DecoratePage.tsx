@@ -88,18 +88,17 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
         background.src = "/images/hq720.jpg";
       } else {
         try {
-          const docRef = doc(db, "custom-bg", currentSessionId!);
-          // Await the fetch so code PAUSES here until we have the data
-          const snapshot = await getDoc(docRef);
-
-          if (snapshot.exists()) {
-            const data = snapshot.data();
-            if (data.imageUrl) {
-              console.log("Background received!", data.imageUrl);
-              // FORCE NEW REQUEST: Handle existing query params (?) vs new ones
-              const separator = data.imageUrl.includes("?") ? "&" : "?";
-              background.src = `${data.imageUrl}${separator}time=${Date.now()}`;
-            }
+          // Fetch from FastAPI backend instead of Firebase
+          const response = await fetch(
+            `/api/get-background/${currentSessionId}`
+          );
+          if (response.ok) {
+            const blob = await response.blob();
+            const objectUrl = URL.createObjectURL(blob);
+            background.src = objectUrl;
+            console.log("Background received from server!");
+          } else {
+            console.error("Failed to fetch background:", response.statusText);
           }
         } catch (error) {
           console.error("Error fetching background:", error);
@@ -294,6 +293,19 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
         const downloadURL = await getDownloadURL(snapshot.ref);
         console.log("File available at", downloadURL);
         localStorage.setItem("download", downloadURL);
+
+        // Clean up background from backend if custom option was used
+        const option = localStorage.getItem("option");
+        if (option === "custom") {
+          try {
+            await fetch(`/api/delete-background/${sessionId}`, {
+              method: "DELETE",
+            });
+            console.log("Background cleaned up successfully");
+          } catch (error) {
+            console.error("Error cleaning up background:", error);
+          }
+        }
 
         router.push("/adminpanel/download");
         /*

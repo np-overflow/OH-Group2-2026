@@ -9,6 +9,8 @@ interface PhotoContextType {
   setSourceX: (x: number) => void;
   sourceY: number;
   setSourceY: (y: number) => void;
+  backgroundUrl: string | null;
+  setBackgroundUrl: (url: string | null) => void;
 }
 
 const PhotoContext = createContext<PhotoContextType | undefined>(undefined);
@@ -17,6 +19,7 @@ export function PhotoProvider({ children }: { children: React.ReactNode }) {
   const [editedPhotos, setEditedPhotos] = useState<Blob[]>([]);
   const [sourceX, setSourceX] = useState(0);
   const [sourceY, setSourceY] = useState(0);
+  const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
 
   return (
     <PhotoContext.Provider
@@ -27,6 +30,8 @@ export function PhotoProvider({ children }: { children: React.ReactNode }) {
         setSourceX,
         sourceY,
         setSourceY,
+        backgroundUrl,
+        setBackgroundUrl,
       }}
     >
       {children}

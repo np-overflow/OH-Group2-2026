@@ -1,8 +1,15 @@
 from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import Response
+from fastapi.responses import Response, FileResponse
 from rembg import remove
+import os
+import shutil
+from pathlib import Path
 
 app = FastAPI(title="Background Remover API")
+
+# Temporary storage directory for backgrounds
+TEMP_DIR = Path("temp_backgrounds")
+TEMP_DIR.mkdir(exist_ok=True)
 
 
 @app.get("/health")
@@ -27,3 +34,57 @@ async def remove_background(file: UploadFile = File(...)) -> Response:
 		raise HTTPException(status_code=500, detail="Failed to process image.") from exc
 
 	return Response(content=result_bytes, media_type="image/png")
+
+
+@app.post("/upload-background/{session_id}")
+async def upload_background(session_id: str, file: UploadFile = File(...)) -> dict[str, str]:
+	"""Store background image temporarily for a session."""
+	if not file.content_type or not file.content_type.startswith("image/"):
+		raise HTTPException(status_code=400, detail="File must be an image.")
+
+	data = await file.read()
+	if not data:
+		raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+	try:
+		# Create session-specific directory
+		session_dir = TEMP_DIR / session_id
+		session_dir.mkdir(exist_ok=True)
+		
+		# Save the background image
+		file_path = session_dir / "background.png"
+		with open(file_path, "wb") as f:
+			f.write(data)
+		
+		return {"status": "success", "message": "Background uploaded successfully"}
+	except Exception as exc:
+		raise HTTPException(status_code=500, detail="Failed to upload background.") from exc
+
+
+@app.get("/get-background/{session_id}")
+async def get_background(session_id: str) -> FileResponse:
+	"""Retrieve the stored background image for a session."""
+	file_path = TEMP_DIR / session_id / "background.png"
+	
+	if not file_path.exists():
+		raise HTTPException(status_code=404, detail="Background not found for this session.")
+	
+	try:
+		return FileResponse(file_path, media_type="image/png")
+	except Exception as exc:
+		raise HTTPException(status_code=500, detail="Failed to retrieve background.") from exc
+
+
+@app.delete("/delete-background/{session_id}")
+async def delete_background(session_id: str) -> dict[str, str]:
+	"""Delete the stored background image for a session."""
+	session_dir = TEMP_DIR / session_id
+	
+	if not session_dir.exists():
+		raise HTTPException(status_code=404, detail="Session directory not found.")
+	
+	try:
+		shutil.rmtree(session_dir)
+		return {"status": "success", "message": "Background deleted successfully"}
+	except Exception as exc:
+		raise HTTPException(status_code=500, detail="Failed to delete background.") from exc
