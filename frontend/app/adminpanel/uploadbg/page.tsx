@@ -4,15 +4,13 @@ import MenuButton from "@/components/MenuButton";
 import BackContinueButtonContainer from "@/components/new/back-continue-button-container";
 import React, { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebaseConfig";
 import { useRouter } from "next/navigation";
 
 const UploadPage = () => {
   let router = useRouter();
   const [selected, setSelected] = useState(1);
   const [continueAvailable, setContinueAvailable] = useState(false);
-  const [bgImage, setBgImage] = useState(null);
+  const [bgImage, setBgImage] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>("");
 
   useEffect(() => {
@@ -23,22 +21,32 @@ const UploadPage = () => {
     }
     setSessionId(newSessionId);
 
-    // If custom background selected, listen for uploads
+    // If custom background selected, poll for uploads
     if (selected === 2) {
-      const unsub = onSnapshot(
-        doc(db, "custom-bg", newSessionId),
-        (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.data();
-            if (data.imageUrl) {
-              console.log("Image received!", data.imageUrl);
-              setBgImage(data.imageUrl);
-              setContinueAvailable(true);
-            }
+      const checkForBackground = async () => {
+        try {
+          const response = await fetch(
+            `/api/get-background/${newSessionId}`
+          );
+          if (response.ok) {
+            const blob = await response.blob();
+            const objectUrl = URL.createObjectURL(blob);
+            setBgImage(objectUrl);
+            setContinueAvailable(true);
+            console.log("Image received!");
           }
+        } catch (error) {
+          // Background not yet uploaded, continue polling
         }
-      );
-      return () => unsub();
+      };
+
+      // Poll every 1 second
+      const interval = setInterval(checkForBackground, 1000);
+      
+      // Check immediately on mount
+      checkForBackground();
+
+      return () => clearInterval(interval);
     } else {
       // Regular background selected
       setContinueAvailable(true);
