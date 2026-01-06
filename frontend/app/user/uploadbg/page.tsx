@@ -76,7 +76,7 @@ const UploadFilePage = () => {
         <h2 className="text-2xl mb-4">Background preview</h2>
         <div className="border-1 rounded p-4 w-full flex justify-center">
           <img
-            src={bgUrl ?? "images/not-uploaded.png"}
+            src={bgUrl ?? "/images/not-uploaded.png"}
             className="aspect-7/5 object-cover w-[300px] max-w-full"
           ></img>
         </div>
