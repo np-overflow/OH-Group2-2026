@@ -32,14 +32,21 @@ export default function HomePage() {
       router.push("/adminpanel/uploadbg");
     }}>
       <div className="h-screen relative flex items-center justify-center">
-        <div className="p-8 flex flex-col items-center font-geist gap-8 bg-radial from-[#7E83D3] to-[#F9F9FF] to-50% rounded-2xl">
-          <h1 className="text-4xl font-bold text-center">Welcome to the Digital Photobooth!</h1>
-          <img
-            src="/images/regularbg.png"
-            className="max-h-120"
-            alt="Welcome"
-          />
-          <p className="text-lg text-center">Made with ❤️ by NP Overflow</p>
+        <div className="p-12 flex flex-col items-center font-geist gap-8 glass-panel rounded-2xl border border-neon-blue/30 shadow-[0_0_30px_rgba(0,243,255,0.1)] max-w-2xl w-full mx-4 animate-in fade-in zoom-in duration-500">
+          <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple neon-text">
+            Welcome to the Digital Photobooth!
+          </h1>
+          <div className="relative group">
+            <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-neon-blue to-neon-purple opacity-50 blur group-hover:opacity-75 transition duration-500"></div>
+            <img
+              src="/images/regularbg.png"
+              className="relative max-h-96 rounded-lg border-2 border-white/10"
+              alt="Welcome"
+            />
+          </div>
+          <p className="text-xl text-center text-slate-700 font-medium">
+            Made with <span className="text-neon-purple">❤️</span> by NP Overflow
+          </p>
         </div>
       </div>
     </BackContinueButtonContainer>

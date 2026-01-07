@@ -249,10 +249,10 @@ const LivePhotoPage = () => {
       />
 
       {/* absolute top-1/2 -translate-y-1/2 right-52 */}
-      
+
       <div className={`absolute transition-all duration-500 ease-in-out text-white h-[540px] w-[180px] z-10 flex flex-col items-center gap-2 p-3 bg-black/20 rounded-lg ${photoTaking
-          ? "top-1/2 -translate-y-1/2 right-52"
-          : "m-auto inset-0"
+        ? "top-1/2 -translate-y-1/2 right-52"
+        : "m-auto inset-0"
         } ${!(photoTaking || available) && "opacity-0"}`}>
         <p className="text-lg font-bold text-center">Photostrip Preview</p>
         <canvas

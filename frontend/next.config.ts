@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  images : {
+  images: {
     remotePatterns: [
       {
         protocol: 'https',

@@ -19,14 +19,14 @@ const DownloadPage = () => {
     setSessionId(localStorage.getItem("sessionId"));
     const url = localStorage.getItem("download");
     setDownloadUrl(url);
-    
+
     // Encode the URL to base64 and create QR code URL
     if (url) {
       const encoded = btoa(url);
       const fullUrl = `${window.location.origin}/user/getimage?image=${encoded}`;
       setQrUrl(fullUrl);
     }
-    
+
     if (photostrip.current) {
     }
     photostrip.current!.onload = () => {
@@ -35,43 +35,43 @@ const DownloadPage = () => {
   }, []);
 
   return (
-    <BackContinueButtonContainer onContinue={() => {
+    <BackContinueButtonContainer onBack={() => { router.back() }} onContinue={() => {
       router.replace("/adminpanel");
     }} restart={true} continueText="Restart">
-    <div className="h-screen relative bg-[#f9f9ff] z-3">
-      <h1 className="p-8 pb-[15vh] text-center font-bold text-4xl bg-[#f9f9ff] z-3 relative">
-        Download
-      </h1>
-      {/* <div className="h-[50px] w-full absolute right-0 bg-[#f9f9ff] z-3"></div> */}
-      {/* <div className="mb-[10px]"></div> */}
+      <div className="h-screen relative bg-[#f9f9ff] z-3">
+        <h1 className="p-8 pb-[15vh] text-center font-bold text-4xl bg-[#f9f9ff] z-3 relative">
+          Download
+        </h1>
+        {/* <div className="h-[50px] w-full absolute right-0 bg-[#f9f9ff] z-3"></div> */}
+        {/* <div className="mb-[10px]"></div> */}
 
-      <div className="flex items-center justify-center gap-60 bg-[#f9f9ff]">
-        <div className="w-min flex flex-col items-center">
-          <div className="p-4 border-2 rounded mt-8">
-            <QRCode size={350} value={qrUrl || "#"} />
+        <div className="flex items-center justify-center gap-60 bg-[#f9f9ff]">
+          <div className="w-min flex flex-col items-center">
+            <div className="p-4 border-2 rounded mt-8">
+              <QRCode size={350} value={qrUrl || "#"} />
+            </div>
+            <p className="px-10 py-4 text-center">
+              Scan the QR Code while we print the photos out for you!!
+            </p>
           </div>
-          <p className="px-10 py-4 text-center">
-            Scan the QR Code while we print the photos out for you!!
-          </p>
-        </div>
-        <div className="relative flex flex-col items-center">
-          <img
-            src="/images/newtopphotoslot.png"
-            className="w-[300px] relative z-2 top-0"
-          ></img>
-          <img
-            src="/images/newbottomphotoslot.png"
-            className="w-[300px] relative z-0 "
-          />
-          <img
-            onLoad={() => setImageLoad(true)}
-            ref={photostrip}
-            src={downloadUrl!}
-            className={`w-[180px] h-[540px] relative bottom-142 z-1 ${imageLoad ? "animate-down" : "null"}`}
-          />
+          <div className="relative flex flex-col items-center">
+            <img
+              src="/images/newtopphotoslot.png"
+              className="w-[300px] relative z-2 top-0"
+            ></img>
+            <img
+              src="/images/newbottomphotoslot.png"
+              className="w-[300px] relative z-0 "
+            />
+            <img
+              onLoad={() => setImageLoad(true)}
+              ref={photostrip}
+              src={downloadUrl!}
+              className={`w-[180px] h-[540px] relative bottom-142 z-1 ${imageLoad ? "animate-down" : "null"}`}
+            />
+          </div>
         </div>
       </div>
-    </div>
     </BackContinueButtonContainer>
   );
 };
