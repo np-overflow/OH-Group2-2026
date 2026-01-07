@@ -38,37 +38,38 @@ const DownloadPage = () => {
     <BackContinueButtonContainer onBack={() => { router.back() }} onContinue={() => {
       router.replace("/adminpanel");
     }} restart={true} continueText="Restart">
-      <div className="h-screen relative bg-[#f9f9ff] z-3">
-        <h1 className="p-8 pb-[15vh] text-center font-bold text-4xl bg-[#f9f9ff] z-3 relative">
-          Download
-        </h1>
-        {/* <div className="h-[50px] w-full absolute right-0 bg-[#f9f9ff] z-3"></div> */}
-        {/* <div className="mb-[10px]"></div> */}
+      <div className="h-screen w-screen font-geist flex flex-col items-center justify-center p-8">
+        <div className="p-12 flex flex-col items-center gap-12 glass-panel rounded-2xl border border-neon-blue/30 shadow-[0_0_30px_rgba(0,112,243,0.1)] max-w-7xl w-full mx-4 animate-in fade-in zoom-in duration-500 bg-white/70">
+          <h1 className="font-extrabold text-4xl text-center text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple drop-shadow-sm">
+            Download Your Photostrip
+          </h1>
 
-        <div className="flex items-center justify-center gap-60 bg-[#f9f9ff]">
-          <div className="w-min flex flex-col items-center">
-            <div className="p-4 border-2 rounded mt-8">
-              <QRCode size={350} value={qrUrl || "#"} />
+          <div className="flex items-center justify-center gap-20">
+            <div className="w-min flex flex-col items-center gap-4">
+              <h3 className="text-xl text-slate-700 font-semibold">Scan to Download:</h3>
+              <div className="p-4 border-2 border-neon-blue/20 rounded-xl bg-white shadow-sm">
+                <QRCode size={350} value={qrUrl || "#"} />
+              </div>
+              <p className="px-10 py-2 text-center text-slate-600">
+                Scan the QR Code to get your Photostrip!
+              </p>
             </div>
-            <p className="px-10 py-4 text-center">
-              Scan the QR Code to get your Photostrip!
-            </p>
-          </div>
-          <div className="relative flex flex-col items-center">
-            <img
-              src="/images/newtopphotoslot.png"
-              className="w-[300px] relative z-2 top-0"
-            ></img>
-            <img
-              src="/images/newbottomphotoslot.png"
-              className="w-[300px] relative z-0 "
-            />
-            <img
-              onLoad={() => setImageLoad(true)}
-              ref={photostrip}
-              src={downloadUrl!}
-              className={`w-[180px] h-[540px] relative bottom-142 z-1 ${imageLoad ? "animate-down" : "null"}`}
-            />
+            <div className="relative flex flex-col items-center">
+              <img
+                src="/images/newtopphotoslot.png"
+                className="w-[300px] relative z-2 top-0"
+              />
+              <img
+                src="/images/newbottomphotoslot.png"
+                className="w-[300px] relative z-0"
+              />
+              <img
+                onLoad={() => setImageLoad(true)}
+                ref={photostrip}
+                src={downloadUrl!}
+                className={`w-[180px] h-[540px] relative bottom-142 z-1 ${imageLoad ? "animate-down" : "null"}`}
+              />
+            </div>
           </div>
         </div>
       </div>

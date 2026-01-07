@@ -22,6 +22,7 @@ const LivePhotoPage = () => {
   const [canvasVisible, setCanvasVisible] = useState(true);
   const [videoWidth, setVideoWidth] = useState(0);
   const [videoHeight, setVideoHeight] = useState(0);
+  const [flash, setFlash] = useState(false);
 
   // Note: I need to check if the camera permission is enabled before I can display the 3.
   const counter = useRef<HTMLParagraphElement>(null);
@@ -90,6 +91,9 @@ const LivePhotoPage = () => {
           setTimeout(() => {
             counter.current!.textContent = "0";
             setCanvasVisible(true);
+            // Trigger flash effect
+            setFlash(true);
+            setTimeout(() => setFlash(false), 200);
             // Snap photo
             let copyCtx = canvasCopy.current!.getContext("2d");
             canvasCopy.current!.width = camera.current!.videoWidth;
@@ -242,6 +246,9 @@ const LivePhotoPage = () => {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black">
+      {/* Flash effect overlay */}
+      <div className={`absolute inset-0 bg-white z-50 pointer-events-none transition-opacity duration-200 ${flash ? "opacity-80" : "opacity-0"}`} />
+
       <video
         autoPlay
         ref={camera}
