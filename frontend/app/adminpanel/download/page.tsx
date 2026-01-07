@@ -35,7 +35,7 @@ const DownloadPage = () => {
   }, []);
 
   return (
-    <BackContinueButtonContainer onBack={() => { router.back() }} onContinue={() => {
+    <BackContinueButtonContainer onContinue={() => {
       router.replace("/adminpanel");
     }} restart={true} continueText="Restart">
       <div className="h-screen w-screen font-geist flex flex-col items-center justify-center p-8">
