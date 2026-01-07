@@ -51,7 +51,7 @@ const DownloadPage = () => {
               <QRCode size={350} value={qrUrl || "#"} />
             </div>
             <p className="px-10 py-4 text-center">
-              Scan the QR Code while we print the photos out for you!!
+              Scan the QR Code to get your Photostrip!
             </p>
           </div>
           <div className="relative flex flex-col items-center">
