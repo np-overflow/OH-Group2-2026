@@ -40,6 +40,7 @@ const UploadPage = () => {
 
     function startPolling(sid: string, spass: string | null) {
       if (selected === 2) {
+        setContinueAvailable(false);
         const checkForBackground = async () => {
           try {
             const response = await fetch(
