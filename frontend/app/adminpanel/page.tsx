@@ -9,9 +9,22 @@ export default function HomePage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
 
   useEffect(() => {
-    const newId = Math.random().toString(36).substring(3);
-    localStorage.setItem("sessionId", newId);
-    setSessionId(newId);
+    const initSession = async () => {
+      try {
+        const response = await fetch("/api/create-session", { method: "POST" });
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem("sessionId", data.session_id);
+          localStorage.setItem("sessionPassword", data.session_password);
+          setSessionId(data.session_id);
+        } else {
+          console.error("Failed to create session:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error creating session:", error);
+      }
+    };
+    initSession();
   }, []);
 
   return (

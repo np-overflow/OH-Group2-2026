@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 const UploadFilePage = () => {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session");
+  const sessionPassword = searchParams.get("password");
   const [bgUrl, setBgUrl] = useState<string | null>(null);
   const [status, setStatus] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -38,6 +39,9 @@ const UploadFilePage = () => {
 
       const response = await fetch(`/api/upload-background/${sessionId}`, {
         method: "POST",
+        headers: {
+          "X-Session-Password": sessionPassword || "",
+        },
         body: formData,
       });
 

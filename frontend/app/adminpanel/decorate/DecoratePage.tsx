@@ -89,8 +89,14 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
       } else {
         try {
           // Fetch from FastAPI backend instead of Firebase
+          const sessionPassword = localStorage.getItem("sessionPassword");
           const response = await fetch(
-            `/api/get-background/${currentSessionId}`
+            `/api/get-background/${currentSessionId}`,
+            {
+              headers: {
+                "X-Session-Password": sessionPassword || "",
+              },
+            }
           );
           if (response.ok) {
             const blob = await response.blob();
@@ -298,8 +304,12 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
         const option = localStorage.getItem("option");
         if (option === "custom") {
           try {
+            const sessionPassword = localStorage.getItem("sessionPassword");
             await fetch(`/api/delete-background/${sessionId}`, {
               method: "DELETE",
+              headers: {
+                "X-Session-Password": sessionPassword || "",
+              },
             });
             console.log("Background cleaned up successfully");
           } catch (error) {
@@ -335,7 +345,7 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
   }
 
   return (
-    <BackContinueButtonContainer onBack={() => {}} onContinue={() => {renderPhotostrip();}}>
+    <BackContinueButtonContainer onBack={() => { }} onContinue={() => { renderPhotostrip(); }}>
       {/* {displayPage === "loading" && <LoadingPage />} */}
       <div
         className={`p-8 pb-16 h-screen flex flex-col relative items-center justify-center`}

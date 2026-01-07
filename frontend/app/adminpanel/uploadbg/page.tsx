@@ -15,42 +15,60 @@ const UploadPage = () => {
 
   useEffect(() => {
     let newSessionId = localStorage.getItem("sessionId");
+    let sessionPassword = localStorage.getItem("sessionPassword");
     if (!newSessionId) {
-      newSessionId = Math.random().toString(36).substring(3);
-      localStorage.setItem("sessionId", newSessionId);
-    }
-    setSessionId(newSessionId);
-
-    // If custom background selected, poll for uploads
-    if (selected === 2) {
-      const checkForBackground = async () => {
+      // Fallback if session creation failed earlier
+      const initSession = async () => {
         try {
-          const response = await fetch(
-            `/api/get-background/${newSessionId}`
-          );
+          const response = await fetch("/api/create-session", { method: "POST" });
           if (response.ok) {
-            const blob = await response.blob();
-            const objectUrl = URL.createObjectURL(blob);
-            setBgImage(objectUrl);
-            setContinueAvailable(true);
-            console.log("Image received!");
+            const data = await response.json();
+            localStorage.setItem("sessionId", data.session_id);
+            localStorage.setItem("sessionPassword", data.session_password);
+            setSessionId(data.session_id);
+            startPolling(data.session_id, data.session_password);
           }
         } catch (error) {
-          // Background not yet uploaded, continue polling
+          console.error("Error creating session:", error);
         }
       };
-
-      // Poll every 1 second
-      const interval = setInterval(checkForBackground, 1000);
-      
-      // Check immediately on mount
-      checkForBackground();
-
-      return () => clearInterval(interval);
+      initSession();
     } else {
-      // Regular background selected
-      setContinueAvailable(true);
-      setBgImage(null);
+      setSessionId(newSessionId);
+      startPolling(newSessionId, sessionPassword);
+    }
+
+    function startPolling(sid: string, spass: string | null) {
+      if (selected === 2) {
+        const checkForBackground = async () => {
+          try {
+            const response = await fetch(
+              `/api/get-background/${sid}`,
+              {
+                headers: {
+                  "X-Session-Password": spass || "",
+                },
+              }
+            );
+            if (response.ok) {
+              const blob = await response.blob();
+              const objectUrl = URL.createObjectURL(blob);
+              setBgImage(objectUrl);
+              setContinueAvailable(true);
+              console.log("Image received!");
+            }
+          } catch (error) {
+            // Background not yet uploaded, continue polling
+          }
+        };
+
+        const interval = setInterval(checkForBackground, 1000);
+        checkForBackground();
+        return () => clearInterval(interval);
+      } else {
+        setContinueAvailable(true);
+        setBgImage(null);
+      }
     }
   }, [selected]);
 
@@ -64,7 +82,7 @@ const UploadPage = () => {
   }
 
   return (
-    <BackContinueButtonContainer onBack={() => {router.back()}} onContinue={continueAvailable ? handleContinue : undefined}>
+    <BackContinueButtonContainer onBack={() => { router.back() }} onContinue={continueAvailable ? handleContinue : undefined}>
       <div className="h-screen font-geist flex flex-col items-center justify-center p-20 gap-12">
         <h1 className="font-bold text-4xl text-center">Choose Your Background</h1>
 
@@ -92,7 +110,14 @@ const UploadPage = () => {
             <div className="flex flex-col justify-center items-center overflow-hidden gap-4">
               <h3 className="text-xl">Scan to upload:</h3>
               <div className="border-2 border-black rounded-xl p-4">
-                {sessionId && <QRCode value={`${window.location.origin}/user/uploadbg?session=${sessionId}`} size={300} />}
+                {sessionId && (
+                  <QRCode
+                    value={`${window.location.origin}/user/uploadbg?session=${sessionId}&password=${localStorage.getItem(
+                      "sessionPassword"
+                    )}`}
+                    size={300}
+                  />
+                )}
               </div>
             </div>
             <img

@@ -1,9 +1,11 @@
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile, Header, Depends
 from fastapi.responses import Response, FileResponse
 from rembg import remove
 import os
 import shutil
+import secrets
 from pathlib import Path
+from typing import Dict
 
 app = FastAPI(title="Background Remover API")
 
@@ -11,11 +13,31 @@ app = FastAPI(title="Background Remover API")
 TEMP_DIR = Path("temp_backgrounds")
 TEMP_DIR.mkdir(exist_ok=True)
 
+# In-memory session storage (session_id -> session_password)
+SESSIONS: Dict[str, str] = {}
+
+
+async def verify_session(session_id: str, x_session_password: str = Header(None)):
+    if session_id not in SESSIONS:
+        raise HTTPException(status_code=404, detail="Session not found.")
+    if SESSIONS[session_id] != x_session_password:
+        raise HTTPException(status_code=401, detail="Invalid session password.")
+    return session_id
+
 
 @app.get("/health")
 async def health_check() -> dict[str, str]:
-	"""Basic readiness probe for monitoring."""
-	return {"status": "ok"}
+    """Basic readiness probe for monitoring."""
+    return {"status": "ok"}
+
+
+@app.post("/create-session")
+async def create_session() -> dict[str, str]:
+    """Create a new session and return the ID and password."""
+    session_id = secrets.token_urlsafe(16)
+    session_password = secrets.token_urlsafe(32)
+    SESSIONS[session_id] = session_password
+    return {"session_id": session_id, "session_password": session_password}
 
 
 @app.post("/remove-bg")
@@ -37,7 +59,10 @@ async def remove_background(file: UploadFile = File(...)) -> Response:
 
 
 @app.post("/upload-background/{session_id}")
-async def upload_background(session_id: str, file: UploadFile = File(...)) -> dict[str, str]:
+async def upload_background(
+    session_id: str = Depends(verify_session), 
+    file: UploadFile = File(...)
+) -> dict[str, str]:
 	"""Store background image temporarily for a session."""
 	if not file.content_type or not file.content_type.startswith("image/"):
 		raise HTTPException(status_code=400, detail="File must be an image.")
@@ -62,7 +87,7 @@ async def upload_background(session_id: str, file: UploadFile = File(...)) -> di
 
 
 @app.get("/get-background/{session_id}")
-async def get_background(session_id: str) -> FileResponse:
+async def get_background(session_id: str = Depends(verify_session)) -> FileResponse:
 	"""Retrieve the stored background image for a session."""
 	file_path = TEMP_DIR / session_id / "background.png"
 	
@@ -76,7 +101,7 @@ async def get_background(session_id: str) -> FileResponse:
 
 
 @app.delete("/delete-background/{session_id}")
-async def delete_background(session_id: str) -> dict[str, str]:
+async def delete_background(session_id: str = Depends(verify_session)) -> dict[str, str]:
 	"""Delete the stored background image for a session."""
 	session_dir = TEMP_DIR / session_id
 	
