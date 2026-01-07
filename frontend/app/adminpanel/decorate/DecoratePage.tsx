@@ -345,7 +345,7 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
   }
 
   return (
-    <BackContinueButtonContainer onBack={() => { }} onContinue={() => { renderPhotostrip(); }}>
+    <BackContinueButtonContainer onBack={() => {router.back() }} onContinue={() => { renderPhotostrip(); }}>
       {/* {displayPage === "loading" && <LoadingPage />} */}
       <div
         className={`p-8 pb-16 h-screen flex flex-col relative items-center justify-center`}

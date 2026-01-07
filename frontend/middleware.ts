@@ -13,7 +13,7 @@ export function middleware(request: NextRequest) {
         // WARN: If you are testing locally without Cloudflare, this will block you.
         // You might want to allow '::1' or '127.0.0.1' for local dev if needed,
         // but the user specifically asked for this IP.
-        if (ip?.startsWith("153.20.")) {
+        if (ip?.startsWith("153.20.") || ip?.startsWith("::1") ) {
             return NextResponse.next()
         }
     }

@@ -280,7 +280,7 @@ const LivePhotoPage = () => {
           ) : <p className="text-lg">Be sure to smile at the camera! 😁</p>}
         </div>
 
-        <BackContinueButtonContainer onBack={photoTaking ? undefined : () => router.push("/adminpanel/page")} onContinue={available ? () => {
+        <BackContinueButtonContainer onBack={photoTaking ? undefined : () => router.back()} onContinue={available ? () => {
           sendAndRetrieveImages();
         } : photoTaking ? undefined : capturePhotos} continueText={photoTaking ? "Taking Photos..." : available ? "Continue" : "Take Photos"}>
           <div className="flex flex-col gap-20 justify-center items-center px-96" />
