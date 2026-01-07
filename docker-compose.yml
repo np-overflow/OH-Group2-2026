@@ -3,15 +3,14 @@ services:
     build: 
       context: ./backend
     restart: always
+    network_mode: host
+    ports:
+      - "3000:3000"
 
   frontend:
     build: 
       context: ./frontend
     network_mode: service:backend
     restart: always
-    ports:
-      - "3000:3000"
     depends_on:
       - backend
-
-volumes:
