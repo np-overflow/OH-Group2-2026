@@ -2,21 +2,16 @@ services:
   backend:
     build: 
       context: ./backend
-    network_mode: service:caddy
     restart: always
-    depends_on:
-      - caddy
 
   frontend:
     build: 
       context: ./frontend
-    network_mode: service:caddy
+    network_mode: service:backend
     restart: always
     ports:
       - "3000:3000"
     depends_on:
-      - caddy
+      - backend
 
 volumes:
-  caddy_data:
-  caddy_config:
