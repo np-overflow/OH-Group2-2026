@@ -54,6 +54,7 @@ const DownloadPage = () => {
                 Scan the QR Code to get your Photostrip!
               </p>
             </div>
+
             <div className="relative flex flex-col items-center">
               <img
                 src="/images/newtopphotoslot.png"
@@ -67,7 +68,7 @@ const DownloadPage = () => {
                 onLoad={() => setImageLoad(true)}
                 ref={photostrip}
                 src={downloadUrl!}
-                className={`w-[180px] h-[540px] relative bottom-142 z-1 ${imageLoad ? "animate-down" : "null"}`}
+                className={`w-[180px] h-[540px] relative bottom-[45px] z-1 ${imageLoad ? "animate-down" : "null"}`}
               />
             </div>
           </div>
