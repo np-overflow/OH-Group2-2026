@@ -1,15 +1,4 @@
 services:
-  caddy:
-    image: caddy:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    restart: always
-
   backend:
     build: 
       context: ./backend
@@ -23,6 +12,8 @@ services:
       context: ./frontend
     network_mode: service:caddy
     restart: always
+    ports:
+      - "3000:3000"
     depends_on:
       - caddy
 
