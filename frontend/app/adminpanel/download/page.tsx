@@ -39,7 +39,7 @@ const DownloadPage = () => {
       router.replace("/adminpanel");
     }} restart={true} continueText="Restart">
     <div className="h-screen relative bg-[#f9f9ff] z-3">
-      <h1 className="p-8 text-center font-bold text-4xl bg-[#f9f9ff] z-3 relative">
+      <h1 className="p-8 pb-[15vh] text-center font-bold text-4xl bg-[#f9f9ff] z-3 relative">
         Download
       </h1>
       {/* <div className="h-[50px] w-full absolute right-0 bg-[#f9f9ff] z-3"></div> */}
