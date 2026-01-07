@@ -1,0 +1,3 @@
+software2.ngeeann.zip {
+    reverse_proxy localhost:3000
+}

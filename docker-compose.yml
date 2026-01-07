@@ -1,0 +1,31 @@
+services:
+  caddy:
+    image: caddy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: always
+
+  backend:
+    build: 
+      context: ./backend
+    network_mode: service:caddy
+    restart: always
+    depends_on:
+      - caddy
+
+  frontend:
+    build: 
+      context: ./frontend
+    network_mode: service:caddy
+    restart: always
+    depends_on:
+      - caddy
+
+volumes:
+  caddy_data:
+  caddy_config:

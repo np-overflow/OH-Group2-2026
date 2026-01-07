@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async rewrites() {
+  output: "standalone",
+  rewrites: async () => {
     return [
       {
         source: "/api/:path*",
