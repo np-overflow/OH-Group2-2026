@@ -67,7 +67,7 @@ const DownloadPage = () => {
             onLoad={() => setImageLoad(true)}
             ref={photostrip}
             src={downloadUrl!}
-            className={`w-[180px] relative bottom-142 z-1 ${imageLoad ? "animate-down" : "null"}`}
+            className={`w-[180px] h-[540px] relative bottom-142 z-1 ${imageLoad ? "animate-down" : "null"}`}
           />
         </div>
       </div>

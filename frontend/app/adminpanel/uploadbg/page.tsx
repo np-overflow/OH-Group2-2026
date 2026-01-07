@@ -82,8 +82,8 @@ const UploadPage = () => {
   }
 
   return (
-    <BackContinueButtonContainer onBack={() => { router.back() }} onContinue={continueAvailable ? handleContinue : undefined}>
-      <div className="h-screen font-geist flex flex-col items-center justify-center p-20 gap-12">
+    <BackContinueButtonContainer onBack={() => {router.back()}} onContinue={continueAvailable ? handleContinue : undefined}>
+      <div className="h-screen w-screen font-geist flex flex-col items-center p-20 gap-12">
         <h1 className="font-bold text-4xl text-center">Choose Your Background</h1>
 
         <div className="flex gap-20 justify-center">
