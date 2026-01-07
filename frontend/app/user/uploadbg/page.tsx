@@ -1,8 +1,20 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const UploadFilePage = () => {
+  return (
+    <Suspense fallback={
+      <div className="w-screen h-screen flex items-center justify-center bg-white">
+        <p className="text-lg">Loading...</p>
+      </div>
+    }>
+      <UploadFileContent />
+    </Suspense>
+  );
+};
+
+const UploadFileContent = () => {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session");
   const sessionPassword = searchParams.get("password");

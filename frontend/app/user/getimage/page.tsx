@@ -1,11 +1,23 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { Download } from "lucide-react";
 import Image from "next/image";
 
 export default function GetImagePage() {
+  return (
+    <Suspense fallback={
+      <div className="w-screen h-screen flex items-center justify-center bg-white">
+        <p className="text-lg">Loading...</p>
+      </div>
+    }>
+      <ImageContent />
+    </Suspense>
+  );
+}
+
+function ImageContent() {
   const searchParams = useSearchParams();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,7 +77,7 @@ export default function GetImagePage() {
   return (
     <div className="w-screen h-screen flex flex-col items-center justify-center bg-white p-4 gap-4">
       <h1 className="text-2xl font-bold shrink-0">Your Photostrip</h1>
-      
+
       <button
         onClick={handleDownload}
         className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors shrink-0"
@@ -86,3 +98,4 @@ export default function GetImagePage() {
     </div>
   );
 }
+
