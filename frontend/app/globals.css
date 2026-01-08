@@ -17,6 +17,7 @@
   --color-neon-blue: var(--neon-blue);
   --color-neon-purple: var(--neon-purple);
   --animate-pulse-glow: pulse-glow 2s infinite;
+  --animate-down: down 5s ease-in-out forwards;
 
   @keyframes pulse-glow {
 
@@ -29,7 +30,19 @@
       box-shadow: 0 0 20px rgba(0, 112, 243, 0.4), 0 0 30px rgba(0, 112, 243, 0.3);
     }
   }
+
+  @keyframes down {
+    0% {
+      transform: translateY(0px)
+    }
+    100% {
+      transform: translateY(540px)
+    }
+  }
+
+  
 }
+
 
 body {
   background-color: var(--background);

@@ -235,8 +235,8 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
         ...prev,
         [id]: {
           image: image,
-          height: image.height / 4,
-          width: image.width / 4,
+          height: image.height / (100/38),
+          width: image.width / (100/38),
         },
         //
       }));

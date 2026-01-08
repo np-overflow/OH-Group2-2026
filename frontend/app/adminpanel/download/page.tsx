@@ -38,9 +38,9 @@ const DownloadPage = () => {
     <BackContinueButtonContainer onContinue={() => {
       router.replace("/adminpanel");
     }} restart={true} continueText="Restart">
-      <div className="h-screen w-screen font-geist flex flex-col items-center justify-center p-8">
+      <div className="h-screen w-screen font-geist flex flex-col items-center justify-center p-8 relative z-2">
         <div className="p-12 flex flex-col items-center gap-12 glass-panel rounded-2xl border border-neon-blue/30 shadow-[0_0_30px_rgba(0,112,243,0.1)] max-w-7xl w-full mx-4 animate-in fade-in zoom-in duration-500 bg-white/70">
-          <h1 className="font-extrabold text-4xl text-center text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple drop-shadow-sm">
+          <h1 className="font-extrabold text-4xl text-center text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple drop-shadow-sm bg-white">
             Download Your Photostrip
           </h1>
 
@@ -68,7 +68,7 @@ const DownloadPage = () => {
                 onLoad={() => setImageLoad(true)}
                 ref={photostrip}
                 src={downloadUrl!}
-                className={`w-[180px] h-[540px] relative bottom-[45px] z-1 ${imageLoad ? "animate-down" : "null"}`}
+                className={`w-[180px] h-[540px] relative bottom-[45px] z-1 ${imageLoad ? "null" : "null"}`}
               />
             </div>
           </div>

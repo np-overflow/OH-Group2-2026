@@ -80,7 +80,7 @@ const DraggableSticker = ({
     <img
       ref={dragElement}
       src={imgSrc}
-      className={`w-[${width}px] h-auto max-w-[25px]  absolute ${stickerId}`}
+      className={`w-[${width}px] h-auto max-w-[38px]  absolute ${stickerId}`}
       onMouseDown={(e) => {
         handleMouseDown(e);
       }}
