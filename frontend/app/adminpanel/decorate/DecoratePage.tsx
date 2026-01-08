@@ -391,8 +391,8 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
                   stickerSrc="/images/stickers/python.png"
                 />
                 <StickerButton
-                  onClick={() => addSticker("/images/stickers/rose.png")}
-                  stickerSrc="/images/stickers/rose.png"
+                  onClick={() => addSticker("/images/stickers/bow.png")}
+                  stickerSrc="/images/stickers/bow.png"
                 />
                 <StickerButton
                   onClick={() => addSticker("/images/stickers/usagi.png")}
