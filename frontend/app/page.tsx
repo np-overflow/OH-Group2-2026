@@ -1,138 +1,50 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import React from "react";
 
 export default function Home() {
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [resultUrl, setResultUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      if (resultUrl) URL.revokeObjectURL(resultUrl);
-    };
-  }, [previewUrl, resultUrl]);
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] ?? null;
-    setError(null);
-    setImageFile(file);
-
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    if (resultUrl) URL.revokeObjectURL(resultUrl);
-    setResultUrl(null);
-
-    if (file) {
-      setPreviewUrl(URL.createObjectURL(file));
-    } else {
-      setPreviewUrl(null);
-    }
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!imageFile) {
-      setError("Select an image before submitting.");
-      return;
-    }
-
-    setIsProcessing(true);
-    setError(null);
-
-    const formData = new FormData();
-    formData.append("file", imageFile);
-
-    try {
-      const response = await fetch("/api/remove-bg", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message || "Failed to remove background.");
-      }
-
-      const blob = await response.blob();
-      if (resultUrl) URL.revokeObjectURL(resultUrl);
-      setResultUrl(URL.createObjectURL(blob));
-    } catch (err) {
-      setResultUrl(null);
-      setError(err instanceof Error ? err.message : "Unexpected error.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  
   return (
-    <div className="min-h-screen bg-zinc-50 px-4 py-10 font-sans text-zinc-900 dark:bg-black dark:text-zinc-100">
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-10 rounded-2xl bg-white p-8 shadow-lg dark:bg-zinc-900">
-        <section className="space-y-4">
-          <h1 className="text-3xl font-semibold">Background Remover Playground</h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-300">
-            Upload an image to call the FastAPI <code>/remove-bg</code> route via the Next.js
-            rewrite. The processed PNG will render below when the request succeeds.
-          </p>
-        </section>
+    <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-cover bg-center" style={{ backgroundImage: "radial-gradient(circle at center, #ffffff 0%, #f0f4f8 100%)" }}>
+      <main className="max-w-4xl w-full flex flex-col items-center gap-12 text-center animate-in fade-in zoom-in duration-700">
 
-        <form onSubmit={handleSubmit} className="space-y-6 rounded-xl border border-zinc-200 p-6 dark:border-zinc-700">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="image" className="text-sm font-medium uppercase tracking-wide">
-              Choose an image
-            </label>
-            <input
-              id="image"
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="rounded-md border border-dashed border-zinc-400 px-4 py-3 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-zinc-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white dark:file:bg-zinc-100 dark:file:text-black"
-            />
-          </div>
+        {/* Glowing Container */}
+        <div className="relative group">
+          <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-neon-blue to-neon-purple opacity-30 blur-lg group-hover:opacity-50 transition duration-1000 animate-pulse-glow"></div>
+          <div className="relative glass-panel rounded-2xl p-12 ring-1 ring-black/5 bg-white/70">
 
-          <button
-            type="submit"
-            disabled={isProcessing}
-            className="w-full rounded-md bg-zinc-900 py-3 text-center text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-zinc-100 dark:text-black dark:hover:bg-zinc-200"
-          >
-            {isProcessing ? "Removing background..." : "Send to FastAPI"}
-          </button>
+            {/* Icon */}
+            <div className="flex justify-center mb-8">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-20 h-20 text-neon-blue drop-shadow-[0_0_5px_rgba(0,112,243,0.5)]"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
+                />
+              </svg>
+            </div>
 
-          {error && (
-            <p className="rounded-md bg-red-100 px-4 py-3 text-sm text-red-900 dark:bg-red-900/30 dark:text-red-200">
-              {error}
-            </p>
-          )}
-        </form>
-
-        <section className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-3">
-            <h2 className="text-xl font-semibold">Original</h2>
-            <div className="flex min-h-60 items-center justify-center rounded-md border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
-              {previewUrl ? (
-                <img src={previewUrl} alt="Original upload preview" className="max-h-72 object-contain" />
-              ) : (
-                <p className="text-sm text-zinc-500">No image selected.</p>
-              )}
+            <div className="space-y-6">
+              <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple drop-shadow-sm">
+                Photobooth App
+              </h1>
+              <p className="text-xl md:text-2xl text-slate-600 font-light max-w-lg mx-auto leading-relaxed">
+                Capture the moment with our futuristic photobooth experience.
+              </p>
             </div>
           </div>
-
-          <div className="space-y-3">
-            <h2 className="text-xl font-semibold">Result</h2>
-            <div className="flex min-h-60 items-center justify-center rounded-md border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
-              {resultUrl ? (
-                <img src={resultUrl} alt="Background removed result" className="max-h-72 object-contain" />
-              ) : (
-                <p className="text-sm text-zinc-500">
-                  {isProcessing ? "Processing image..." : "Run the request to preview the output."}
-                </p>
-              )}
-            </div>
-          </div>
-        </section>
+        </div>
       </main>
     </div>
   );

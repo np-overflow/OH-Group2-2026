@@ -1,0 +1,14 @@
+services:
+  backend:
+    build: 
+      context: ./backend
+    restart: always
+    network_mode: host
+
+  frontend:
+    build: 
+      context: ./frontend
+    network_mode: service:backend
+    restart: always
+    depends_on:
+      - backend

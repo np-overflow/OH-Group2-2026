@@ -1,12 +1,10 @@
-import React from "react";
-
 export const Spinner = () => {
   return (
     <div>
       <div role="status">
         <svg
           aria-hidden="true"
-          className="inline w-8 h-8 w-8 h-8 text-[#d3deee] animate-spin fill-[#2C7AFC]"
+          className="inline w-8 h-8 text-[#d3deee] animate-spin fill-[#2C7AFC]"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"

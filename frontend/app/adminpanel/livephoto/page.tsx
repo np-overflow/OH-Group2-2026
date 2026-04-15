@@ -1,8 +1,9 @@
 "use client";
 import ContinueButton from "@/components/ContinueButton";
-import React, { FormEvent, useEffect, useRef, useState } from "react";
-import DecoratePage from "../decorate/DecoratePage";
-import LoadingPage from "@/components/LoadingPage";
+import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { usePhotoContext } from "@/lib/PhotoContext";
+import BackContinueButtonContainer from "@/components/new/back-continue-button-container";
 
 const imageWidth = 800;
 const imageHeight = 570;
@@ -11,15 +12,18 @@ const YInterval = 66;
 const imageY = 406;
 
 const LivePhotoPage = () => {
+  const router = useRouter();
+  const { setEditedPhotos, setSourceX, setSourceY } = usePhotoContext();
   const [option, setOption] = useState<string | null>("option");
   const [sessionId, setSessionId] = useState<string | null>("sessionId");
-  const [displayPage, setDisplayPage] = useState("livephoto");
   const [available, setAvailable] = useState(false);
   const [capturedPhotos, setCapturedPhotos] = useState<Blob[]>([]);
-  const [editedPhotos, setEditedPhotos] = useState<Blob[]>([]);
-  const [sourceX, setSourceX] = useState(0);
-  const [sourceY, setSourceY] = useState(0);
   const [photoTaking, setPhotoTaking] = useState(false);
+  const [canvasVisible, setCanvasVisible] = useState(true);
+  const [videoWidth, setVideoWidth] = useState(0);
+  const [videoHeight, setVideoHeight] = useState(0);
+  const [flash, setFlash] = useState(false);
+
   // Note: I need to check if the camera permission is enabled before I can display the 3.
   const counter = useRef<HTMLParagraphElement>(null);
   const camera = useRef<HTMLVideoElement>(null);
@@ -50,25 +54,29 @@ const LivePhotoPage = () => {
       }
       const blob = await response.blob();
       return blob;
-     
+
     } catch (err) {
       console.error(err);
     }
   }
 
   async function sendAndRetrieveImages() {
-    setDisplayPage("loading");
-    console.log("hi");
-    // route first to loading page
-    // Send to bg api, retrieve, paint on new canvas. repeat.
     const results = await Promise.all(
       capturedPhotos.map((photo) => sendAndRetrieveSingularImage(photo))
     );
 
-    const successfulPhotos = results.filter((blob) => blob !==null) as Blob[];
-    setEditedPhotos(successfulPhotos)
+    const successfulPhotos = results.filter((blob) => blob !== null) as Blob[];
+    setEditedPhotos(successfulPhotos);
+    setSourceX(videoWidth);
+    setSourceY(videoHeight);
 
-    setDisplayPage("decorate");
+    (() => {
+      if (camera.current?.srcObject instanceof MediaStream) {
+        camera.current.srcObject.getTracks().forEach(track => track.stop());
+      }
+    })();
+
+    router.push("/adminpanel/decorate");
   }
 
   function capturePhoto(photoNum: number) {
@@ -76,16 +84,22 @@ const LivePhotoPage = () => {
     if (counter.current) {
       setTimeout(() => {
         counter.current!.textContent = "2";
+        setCanvasVisible(false);
         setTimeout(() => {
           counter.current!.textContent = "1";
+          setCanvasVisible(false);
           setTimeout(() => {
             counter.current!.textContent = "0";
+            setCanvasVisible(true);
+            // Trigger flash effect
+            setFlash(true);
+            setTimeout(() => setFlash(false), 200);
             // Snap photo
             let copyCtx = canvasCopy.current!.getContext("2d");
             canvasCopy.current!.width = camera.current!.videoWidth;
             canvasCopy.current!.height = camera.current!.videoHeight;
-            setSourceX(camera.current!.videoWidth);
-            setSourceY(camera.current!.videoHeight);
+            setVideoWidth(camera.current!.videoWidth);
+            setVideoHeight(camera.current!.videoHeight);
             copyCtx!.drawImage(camera.current!, 0, 0);
             canvasCopy.current!.toBlob((blob) => {
               if (!blob) return;
@@ -101,6 +115,7 @@ const LivePhotoPage = () => {
                   return;
                 }
                 counter.current!.textContent = "3";
+                setCanvasVisible(false);
 
                 if (photoNum < 3) capturePhoto(photoNum + 1);
               }, 1000);
@@ -195,7 +210,7 @@ const LivePhotoPage = () => {
       sh = srcW / targetRatio;
       sx = 0;
       sy = (srcH - sh) / 2; // Center the crop
-    }
+    } 
 
     return { sx, sy, sw, sh };
   }
@@ -211,7 +226,7 @@ const LivePhotoPage = () => {
     setSessionId(localStorage.getItem("sessionId"));
     setOption(localStorage.getItem("option"));
     const image = new Image();
-    image.src = "/images/blank-photostrip.png";
+    image.src = "/images/sigphotostrip.png";
 
     image.onload = () => {
       if (canvas.current) {
@@ -229,84 +244,65 @@ const LivePhotoPage = () => {
     showCamera();
   }, []);
 
-  if (displayPage === "livephoto") {
-    return (
-      <div className="p-10 flex flex-col justify-around gap-10">
-        <h1 className="text-4xl font-bold text-center">Phototaking</h1>
-        <div className="flex gap-60 justify-center">
-          <div className="flex flex-col gap-10 justify-between items-center">
-            <div className="relative">
-              <video
-                autoPlay
-                ref={camera}
-                className="object-cover aspect-7/5 w-[700px] bg-[url(/images/no-video.png)] bg-cover rounded border-black border-2 "
-              ></video>
-              <p
-                ref={counter}
-                className="absolute inset-0 flex items-center justify-center text-[#ffffff81] text-[10rem] pointer-events-none"
-              >
-                3
-              </p>
-            </div>
+  return (
+    <div className="relative w-screen h-screen overflow-hidden bg-black">
+      {/* Flash effect overlay */}
+      <div className={`absolute inset-0 bg-white z-50 pointer-events-none transition-opacity duration-200 ${flash ? "opacity-80" : "opacity-0"}`} />
 
-            <button
-              onClick={capturePhotos}
-              className={`rounded-2xl text-white text-xl font-normal bg-[#2C7AFC] px-6 py-2 hover:cursor-pointer ${
-                photoTaking ? "pointer-events-none bg-[#9c9696]" : null
-              }`}
-            >
-              Capture
-            </button>
-          </div>
-          <canvas
-            ref={canvas}
-            height="2700"
-            width="900"
-            className="bg-black flex-none h-[540px] w-[180px]"
-          ></canvas>
-        </div>
-        <ContinueButton
-          onClick={() => {
-            sendAndRetrieveImages();
-          }}
-          title="Continue"
-          isAvailable={available}
+      <video
+        autoPlay
+        ref={camera}
+        className="absolute inset-0 h-full object-cover aspect-7/5 left-1/2 -translate-x-1/2"
+      />
+
+      {/* absolute top-1/2 -translate-y-1/2 right-52 */}
+
+      <div className={`absolute transition-all duration-500 ease-in-out text-white h-[540px] w-[180px] z-10 flex flex-col items-center gap-2 p-3 bg-black/20 rounded-lg ${photoTaking
+        ? "top-1/2 -translate-y-1/2 right-52"
+        : "m-auto inset-0"
+        } ${!(photoTaking || available) && "opacity-0"}`}>
+        <p className="text-lg font-bold text-center">Photostrip Preview</p>
+        <canvas
+          ref={canvas}
+          height="2700"
+          width="900"
+          className=" h-full w-full object-contain"
         />
         <canvas ref={canvasCopy} className="hidden"></canvas>
       </div>
-    );
-  } else if (displayPage === "loading") {
-    return <LoadingPage />;
-  } else {
-    return editedPhotos!.length == 3 ? (
-      <DecoratePage
-        imageBlobs={editedPhotos}
-        sourceX={sourceX}
-        sourceY={sourceY}
-      />
-    ) : (
-      <LoadingPage />
-    );
-  }
+
+      <p
+        ref={counter}
+        className="absolute inset-0 flex items-center justify-center text-[#ffffff81] text-[10rem] z-0 pointer-events-none"
+      >
+        3
+      </p>
+
+      <div className="relative z-10 p-10 flex flex-col justify-center items-center h-screen">
+
+        <div className="bg-black/20 shadow-md text-white bg-opacity-70 rounded-xl px-10 py-4 flex flex-col justify-center items-center gap-2 absolute top-20">
+          <h1 className="text-4xl font-bold text-center">Phototaking Time!</h1>
+          {!photoTaking && !available ? (
+            <p className="text-lg font-semibold text-center">Please start the phototaking by pressing the button.</p>
+          ) : <p className="text-lg">Be sure to smile at the camera! 😁</p>}
+        </div>
+
+        <BackContinueButtonContainer onBack={photoTaking ? undefined : () => router.back()} onContinue={available ? () => {
+          sendAndRetrieveImages();
+        } : photoTaking ? undefined : capturePhotos} continueText={photoTaking ? "Taking Photos..." : available ? "Continue" : "Take Photos"}>
+          <div className="flex flex-col gap-20 justify-center items-center px-96" />
+        </BackContinueButtonContainer>
+
+        {/* <button
+          onClick={capturePhotos}
+          className={`absolute bottom-10 rounded-2xl text-white text-xl font-normal bg-[#2C7AFC] px-6 py-2 hover:cursor-pointer ${photoTaking ? "pointer-events-none bg-[#9c9696]" : null
+            }`}
+        >
+          Capture
+        </button> */}
+      </div>
+    </div>
+  );
 };
 
 export default LivePhotoPage;
-/* 
-console.log(blob)
-      let imageAfter = new Image()
-      imageAfter.src = URL.createObjectURL(blob)
-      await imageAfter.decode()
-      let ctx = canvas.current!.getContext("2d");
-      let {sx, sy, sw, sh} = getCoverCoordinates(imageAfter.width, imageAfter.height, 700, 500)
-      ctx?.drawImage(
-        imageAfter,
-        sx,
-        sy,
-        sw,
-        sh,
-        imageX,
-        imageY,
-        imageWidth,
-        imageHeight
-      );
-*/

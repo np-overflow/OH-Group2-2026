@@ -3,6 +3,7 @@
 import ContinueButton from "@/components/ContinueButton";
 import DraggableSticker from "@/components/DraggableSticker";
 import LoadingPage from "@/components/LoadingPage";
+import BackContinueButtonContainer from "@/components/new/back-continue-button-container";
 import StickerButton from "@/components/StickerButton";
 import { db, storage } from "@/lib/firebaseConfig";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
@@ -87,25 +88,30 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
         background.src = "/images/hq720.jpg";
       } else {
         try {
-          const docRef = doc(db, "custom-bg", currentSessionId!);
-          // Await the fetch so code PAUSES here until we have the data
-          const snapshot = await getDoc(docRef);
-
-          if (snapshot.exists()) {
-            const data = snapshot.data();
-            if (data.imageUrl) {
-              console.log("Background received!", data.imageUrl);
-              // FORCE NEW REQUEST: Handle existing query params (?) vs new ones
-              const separator = data.imageUrl.includes("?") ? "&" : "?";
-              background.src = `${data.imageUrl}${separator}time=${Date.now()}`;
+          // Fetch from FastAPI backend instead of Firebase
+          const sessionPassword = localStorage.getItem("sessionPassword");
+          const response = await fetch(
+            `/api/get-background/${currentSessionId}`,
+            {
+              headers: {
+                "X-Session-Password": sessionPassword || "",
+              },
             }
+          );
+          if (response.ok) {
+            const blob = await response.blob();
+            const objectUrl = URL.createObjectURL(blob);
+            background.src = objectUrl;
+            console.log("Background received from server!");
+          } else {
+            console.error("Failed to fetch background:", response.statusText);
           }
         } catch (error) {
           console.error("Error fetching background:", error);
         }
       }
       const photostripImage = new Image();
-      photostripImage.src = "/images/blank-photostrip.png";
+      photostripImage.src = "/images/sigphotostrip.png";
       await photostripImage.decode();
       if (canvas.current) {
         let ctx = canvas.current.getContext("2d");
@@ -229,8 +235,8 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
         ...prev,
         [id]: {
           image: image,
-          height: image.height / 4,
-          width: image.width / 4,
+          height: image.height / (100/38),
+          width: image.width / (100/38),
         },
         //
       }));
@@ -294,6 +300,23 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
         console.log("File available at", downloadURL);
         localStorage.setItem("download", downloadURL);
 
+        // Clean up background from backend if custom option was used
+        const option = localStorage.getItem("option");
+        if (option === "custom") {
+          try {
+            const sessionPassword = localStorage.getItem("sessionPassword");
+            await fetch(`/api/delete-background/${sessionId}`, {
+              method: "DELETE",
+              headers: {
+                "X-Session-Password": sessionPassword || "",
+              },
+            });
+            console.log("Background cleaned up successfully");
+          } catch (error) {
+            console.error("Error cleaning up background:", error);
+          }
+        }
+
         router.push("/adminpanel/download");
         /*
   try {
@@ -322,94 +345,87 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
   }
 
   return (
-    <div>
-      {displayPage === "loading" && <LoadingPage />}
+    <BackContinueButtonContainer onBack={() => { router.back() }} onContinue={() => { renderPhotostrip(); }}>
+      {/* {displayPage === "loading" && <LoadingPage />} */}
       <div
-        className={`p-8 h-screen ${
-          displayPage === "loading" && "absolute z-0 top-0"
-        }`}
+        className={`p-8 pb-16 h-screen flex flex-col relative items-center justify-center font-geist`}
       >
-        <h1 className="text-4xl text-center mb-12 font-bold">Decorate</h1>
-        <div className="flex gap-30 justify-center items-center h-[600px]">
-          <div ref={canvasOverlay} className="h-[540px] w-[180px] relative">
-            <canvas
-              ref={canvas}
-              height="2700"
-              width="900"
-              className="flex-none h-full w-full"
-            ></canvas>
-            <div className="absolute h-full w-full inset-0 flex items-center justify-center">
-              {addRealSticker()}
+        <div className="p-12 flex flex-col items-center gap-8 glass-panel rounded-2xl border border-neon-blue/30 shadow-[0_0_30px_rgba(0,112,243,0.1)] max-w-7xl w-full mx-4 animate-in fade-in zoom-in duration-500 bg-white/70">
+          <h1 className="text-4xl text-center mb-8 font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple drop-shadow-sm">Decorate your photostrip!</h1>
+          <div className="flex gap-20 justify-center items-center h-[600px] w-full">
+            <div ref={canvasOverlay} className="h-[540px] w-[180px] relative shadow-lg rounded-sm overflow-hidden border border-gray-200">
+              <canvas
+                ref={canvas}
+                height="2700"
+                width="900"
+                className="flex-none h-full w-full"
+              ></canvas>
+              <div className="absolute h-full w-full inset-0 flex items-center justify-center">
+                {addRealSticker()}
+              </div>
             </div>
-          </div>
 
-          <div className="h-full flex flex-col">
-            <h3 className="text-2xl font-semibold text-center mb-4">
-              Stickers
-            </h3>
-            <div className="grid grid-cols-3 grid-rows-4 gap-10 w-80 h-full ">
-              <StickerButton
-                onClick={() => addSticker("/images/stickers/cheese.png")}
-                stickerSrc="/images/stickers/cheese.png"
-              />
-              <StickerButton
-                onClick={() => addSticker("/images/stickers/cinnamoroll1.png")}
-                stickerSrc="/images/stickers/cinnamoroll1.png"
-              />
-              <StickerButton
-                onClick={() => addSticker("/images/stickers/exclamation.png")}
-                stickerSrc="/images/stickers/exclamation.png"
-              />
-              <StickerButton
-                onClick={() => addSticker("/images/stickers/cute-eyes.png")}
-                stickerSrc="/images/stickers/cute-eyes.png"
-              />
-              <StickerButton
-                onClick={() => addSticker("/images/stickers/python.png")}
-                stickerSrc="/images/stickers/python.png"
-              />
-              <StickerButton
-                onClick={() => addSticker("/images/stickers/rose.png")}
-                stickerSrc="/images/stickers/rose.png"
-              />
-              <StickerButton
-                onClick={() => addSticker("/images/stickers/usagi.png")}
-                stickerSrc="/images/stickers/usagi.png"
-              />
-              <StickerButton
-                onClick={() => addSticker("/images/stickers/roblox-usagi.png")}
-                stickerSrc="/images/stickers/roblox-usagi.png"
-              />
-              <StickerButton
-                onClick={() => addSticker("/images/stickers/csharp.png")}
-                stickerSrc="/images/stickers/csharp.png"
-              />
-              <StickerButton
-                onClick={() =>
-                  addSticker("/images/stickers/overflow-transparent.png")
-                }
-                stickerSrc="/images/stickers/overflow-transparent.png"
-              />
-              <StickerButton
-                onClick={() => addSticker("/images/stickers/ict.png")}
-                stickerSrc="/images/stickers/ict.png"
-              />
-              <StickerButton
-                onClick={() => addSticker("/images/stickers/ngeeann.png")}
-                stickerSrc="/images/stickers/ngeeann.png"
-              />
+            <div className="h-full flex flex-col bg-white/50 p-6 rounded-xl border border-neon-blue/10 shadow-inner">
+              <h3 className="text-2xl font-bold text-center mb-6 text-slate-700">
+                Stickers
+              </h3>
+              <div className="grid grid-cols-3 grid-rows-4 gap-6 w-80 h-full overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-neon-blue/20 scrollbar-track-transparent">
+                <StickerButton
+                  onClick={() => addSticker("/images/stickers/cheese.png")}
+                  stickerSrc="/images/stickers/cheese.png"
+                />
+                <StickerButton
+                  onClick={() => addSticker("/images/stickers/cinnamoroll1.png")}
+                  stickerSrc="/images/stickers/cinnamoroll1.png"
+                />
+                <StickerButton
+                  onClick={() => addSticker("/images/stickers/exclamation.png")}
+                  stickerSrc="/images/stickers/exclamation.png"
+                />
+                <StickerButton
+                  onClick={() => addSticker("/images/stickers/cute-eyes.png")}
+                  stickerSrc="/images/stickers/cute-eyes.png"
+                />
+                <StickerButton
+                  onClick={() => addSticker("/images/stickers/python.png")}
+                  stickerSrc="/images/stickers/python.png"
+                />
+                <StickerButton
+                  onClick={() => addSticker("/images/stickers/bow.png")}
+                  stickerSrc="/images/stickers/bow.png"
+                />
+                <StickerButton
+                  onClick={() => addSticker("/images/stickers/usagi.png")}
+                  stickerSrc="/images/stickers/usagi.png"
+                />
+                <StickerButton
+                  onClick={() => addSticker("/images/stickers/roblox-usagi.png")}
+                  stickerSrc="/images/stickers/roblox-usagi.png"
+                />
+                <StickerButton
+                  onClick={() => addSticker("/images/stickers/csharp.png")}
+                  stickerSrc="/images/stickers/csharp.png"
+                />
+                <StickerButton
+                  onClick={() =>
+                    addSticker("/images/stickers/overflow-transparent.png")
+                  }
+                  stickerSrc="/images/stickers/overflow-transparent.png"
+                />
+                <StickerButton
+                  onClick={() => addSticker("/images/stickers/ict.png")}
+                  stickerSrc="/images/stickers/ict.png"
+                />
+                <StickerButton
+                  onClick={() => addSticker("/images/stickers/ngeeann.png")}
+                  stickerSrc="/images/stickers/ngeeann.png"
+                />
+              </div>
             </div>
           </div>
         </div>
-        <ContinueButton
-          onClick={() => {
-            renderPhotostrip();
-          }}
-          isAvailable={true}
-          title="Continue"
-        />
       </div>
-    </div>
+    </BackContinueButtonContainer>
   );
 };
 
