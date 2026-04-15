@@ -104,7 +104,7 @@ const UploadPage = () => {
           {selected === 1 ? (
             <img
               className="max-h-[400px] w-auto flex-none rounded border-2 border-neon-blue/50 shadow-md"
-              src="/images/regularbg.png"
+              src="/images/regularbg2.png"
               alt="Regular background"
             />
           ) : (

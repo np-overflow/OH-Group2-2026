@@ -39,7 +39,7 @@ export default function HomePage() {
           <div className="relative group">
             <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-neon-blue to-neon-purple opacity-50 blur group-hover:opacity-75 transition duration-500"></div>
             <img
-              src="/images/regularbg.png"
+              src="/images/regularbg2.png"
               className="relative max-h-96 rounded-lg border-2 border-white/10"
               alt="Welcome"
             />

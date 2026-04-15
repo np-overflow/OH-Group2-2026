@@ -111,7 +111,7 @@ const DecoratePage = ({ imageBlobs, sourceX, sourceY }: DecoratePageProps) => {
         }
       }
       const photostripImage = new Image();
-      photostripImage.src = "/images/blank-photostrip.png";
+      photostripImage.src = "/images/sigphotostrip.png";
       await photostripImage.decode();
       if (canvas.current) {
         let ctx = canvas.current.getContext("2d");

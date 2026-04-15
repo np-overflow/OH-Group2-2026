@@ -210,7 +210,7 @@ const LivePhotoPage = () => {
       sh = srcW / targetRatio;
       sx = 0;
       sy = (srcH - sh) / 2; // Center the crop
-    }
+    } 
 
     return { sx, sy, sw, sh };
   }
@@ -226,7 +226,7 @@ const LivePhotoPage = () => {
     setSessionId(localStorage.getItem("sessionId"));
     setOption(localStorage.getItem("option"));
     const image = new Image();
-    image.src = "/images/blank-photostrip.png";
+    image.src = "/images/sigphotostrip.png";
 
     image.onload = () => {
       if (canvas.current) {

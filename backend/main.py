@@ -7,7 +7,7 @@ import secrets
 from pathlib import Path
 from typing import Dict
 
-app = FastAPI(title="Background Remover API")
+app = FastAPI(title="Background Remover API", description="API for a digital photobooth application that removes backgrounds from images and allows users to customize photostrips with custom backgrounds and stickers.")
 
 # Temporary storage directory for backgrounds
 TEMP_DIR = Path("temp_backgrounds")
